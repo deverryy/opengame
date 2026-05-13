@@ -4,7 +4,7 @@
    Leave as empty string to disable live features
    (site still works, just no online count or click tracking)
 ══════════════════════════════════════════════════════ */
-const BACKEND_URL = 'https://gambackend-production.up.railway.app';   // ← PASTE YOUR RAILWAY URL HERE
+const BACKEND_URL = '185.150.190.162:2254';   // ← PASTE YOUR RAILWAY URL HERE
 
 /* ══════════════════════════════════════════════════════
    SEED — shown in featured section until real click
