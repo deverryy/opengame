@@ -1,49 +1,43 @@
-const express    = require('express');
-const http       = require('http');
+const express = require('express');
+const http    = require('http');
 const { WebSocketServer } = require('ws');
-const fs         = require('fs');
-const path       = require('path');
+const fs      = require('fs');
+const path    = require('path');
 
 const app    = express();
 const server = http.createServer(app);
 const wss    = new WebSocketServer({ server });
 
-const PORT        = process.env.PORT || 3000;
-const PUBLIC_DIR  = path.join(__dirname, '..'); // site root (index.html, list.json, games/)
-const DATA_FILE   = path.join(__dirname, 'data.json');
+const PORT      = process.env.PORT || 3000;
+const DATA_FILE = path.join(__dirname, 'data.json');
 
-/* ─── Persistent data (click counts) ─── */
+/* ── Allowed frontend origins (set your Vercel URL in Railway env vars) ── */
+const ALLOWED_ORIGINS = (process.env.ALLOWED_ORIGINS || '*').split(',').map(s => s.trim());
+
+function isAllowed(origin) {
+    if (ALLOWED_ORIGINS.includes('*')) return true;
+    return ALLOWED_ORIGINS.some(o => origin && origin.startsWith(o));
+}
+
+/* ── Persistent click data ── */
 function loadData() {
-    try {
-        if (fs.existsSync(DATA_FILE)) return JSON.parse(fs.readFileSync(DATA_FILE, 'utf8'));
-    } catch (_) {}
+    try { if (fs.existsSync(DATA_FILE)) return JSON.parse(fs.readFileSync(DATA_FILE, 'utf8')); }
+    catch (_) {}
     return { clicks: {} };
 }
 function saveData() {
     try { fs.writeFileSync(DATA_FILE, JSON.stringify(siteData, null, 2)); } catch (_) {}
 }
 
-let siteData = loadData();
-// Debounced save — don't hammer disk on every click
+let siteData  = loadData();
 let saveTimer = null;
 function scheduleSave() {
     clearTimeout(saveTimer);
     saveTimer = setTimeout(saveData, 2000);
 }
 
-/* ─── Online users tracking ─── */
+/* ── Online users ── */
 const clients = new Set();
-
-function broadcastStats() {
-    const payload = JSON.stringify({
-        type:   'stats',
-        online: clients.size,
-        popular: getTopGames(15)
-    });
-    clients.forEach(ws => {
-        if (ws.readyState === ws.OPEN) ws.send(payload);
-    });
-}
 
 function getTopGames(n) {
     return Object.entries(siteData.clicks)
@@ -52,89 +46,74 @@ function getTopGames(n) {
         .map(([name, clicks]) => ({ name, clicks }));
 }
 
-/* ─── WebSocket ─── */
-wss.on('connection', ws => {
+function broadcastStats() {
+    const payload = JSON.stringify({
+        type:    'stats',
+        online:  clients.size,
+        popular: getTopGames(15)
+    });
+    clients.forEach(ws => { if (ws.readyState === ws.OPEN) ws.send(payload); });
+}
+
+/* ── WebSocket ── */
+wss.on('connection', (ws, req) => {
+    const origin = req.headers.origin || '';
+    if (!isAllowed(origin)) { ws.close(1008, 'Forbidden'); return; }
+
     clients.add(ws);
     broadcastStats();
 
     ws.on('message', raw => {
         let msg;
         try { msg = JSON.parse(raw); } catch (_) { return; }
-
         if (msg.type === 'click' && typeof msg.name === 'string') {
-            // Sanitise: only allow names that exist in list.json
-            const name = msg.name.slice(0, 120).replace(/[^a-zA-Z0-9 _'\-.,!()]/g, '');
+            const name = msg.name.slice(0, 120).replace(/[^\w\s'\-.,!()]/g, '');
             siteData.clicks[name] = (siteData.clicks[name] || 0) + 1;
             scheduleSave();
             broadcastStats();
         }
     });
 
-    ws.on('close', () => {
-        clients.delete(ws);
-        broadcastStats();
-    });
-
-    ws.on('error', () => {
-        clients.delete(ws);
-        broadcastStats();
-    });
+    ws.on('close',  () => { clients.delete(ws); broadcastStats(); });
+    ws.on('error',  () => { clients.delete(ws); broadcastStats(); });
 });
 
-/* ─── Middleware ─── */
+/* ── Middleware ── */
 app.use(express.json());
-
-// Security headers
 app.use((req, res, next) => {
-    res.setHeader('X-Content-Type-Options', 'nosniff');
-    res.setHeader('X-Frame-Options', 'SAMEORIGIN');
-    res.setHeader('Referrer-Policy', 'no-referrer');
-    // Prevent browsers caching JS/HTML so protection code is always fresh
-    if (req.path.endsWith('.js') || req.path.endsWith('.html')) {
-        res.setHeader('Cache-Control', 'no-store');
+    const origin = req.headers.origin || '';
+    if (isAllowed(origin)) {
+        res.setHeader('Access-Control-Allow-Origin', origin || '*');
+        res.setHeader('Access-Control-Allow-Methods', 'GET,POST,OPTIONS');
+        res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
     }
+    if (req.method === 'OPTIONS') return res.sendStatus(204);
     next();
 });
 
-/* ─── API routes ─── */
-
-// GET /api/stats — current online count + top games
+/* ── API ── */
 app.get('/api/stats', (req, res) => {
-    res.json({
-        online:  clients.size,
-        popular: getTopGames(15)
-    });
+    res.json({ online: clients.size, popular: getTopGames(15) });
 });
 
-// POST /api/click — record a game click (fallback for non-WS clients)
 app.post('/api/click', (req, res) => {
     const { name } = req.body;
     if (!name || typeof name !== 'string') return res.status(400).json({ error: 'bad name' });
-    const clean = name.slice(0, 120).replace(/[^a-zA-Z0-9 _'\-.,!()]/g, '');
+    const clean = name.slice(0, 120).replace(/[^\w\s'\-.,!()]/g, '');
     siteData.clicks[clean] = (siteData.clicks[clean] || 0) + 1;
     scheduleSave();
     broadcastStats();
     res.json({ ok: true, clicks: siteData.clicks[clean] });
 });
 
-// GET /api/popular — top N games by clicks
 app.get('/api/popular', (req, res) => {
-    const n = Math.min(parseInt(req.query.n) || 15, 50);
-    res.json(getTopGames(n));
+    res.json(getTopGames(Math.min(parseInt(req.query.n) || 15, 50)));
 });
 
-/* ─── Static files (serve site root) ─── */
-app.use(express.static(PUBLIC_DIR, {
-    extensions: ['html'],
-    index: 'index.html'
-}));
+app.get('/health', (req, res) => res.json({ ok: true, online: clients.size }));
 
-// 404 fallback
-app.use((req, res) => res.status(404).send('Not found'));
-
-/* ─── Start ─── */
+/* ── Start ── */
 server.listen(PORT, () => {
-    console.log(`\n🌴  Library server running at http://localhost:${PORT}`);
-    console.log(`   WebSocket ready on ws://localhost:${PORT}`);
-    console.log(`   Serving files from: ${PUBLIC_DIR}\n`);
+    console.log(`🌴 Library backend running on port ${PORT}`);
+    console.log(`   Allowed origins: ${ALLOWED_ORIGINS.join(', ')}`);
 });

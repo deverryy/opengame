@@ -106,8 +106,8 @@
         .logo-icon{
             width:50px;height:50px;
             background:linear-gradient(135deg,#FFD740,var(--coral));
-            border-radius:15px; display:flex; align-items:center; justify-content:center;
-            font-size:24px; flex-shrink:0;
+            border-radius:15px;display:flex;align-items:center;justify-content:center;
+            font-size:24px;flex-shrink:0;
             box-shadow:0 4px 18px rgba(255,107,107,0.30),0 0 0 6px rgba(255,215,64,0.12);
         }
         .logo-text h1{font-family:'Playfair Display',Georgia,serif;font-size:1.55em;font-weight:900;color:var(--text-dark);letter-spacing:-.4px;line-height:1;}
@@ -116,19 +116,21 @@
 
         /* Online pill */
         .online-pill {
-            display:flex; align-items:center; gap:7px;
+            display:flex;align-items:center;gap:7px;
             background:rgba(0,201,167,0.14);
             border:1.5px solid rgba(0,201,167,0.32);
-            border-radius:20px; padding:6px 14px;
-            font-size:.78em; font-weight:600; color:#00A080;
-            white-space:nowrap; transition:all .4s;
+            border-radius:20px;padding:6px 14px;
+            font-size:.78em;font-weight:600;color:#00A080;
+            white-space:nowrap;transition:all .4s;
         }
-        .online-dot {
+        .online-dot{
             width:7px;height:7px;border-radius:50%;background:#00C9A7;flex-shrink:0;
             box-shadow:0 0 0 3px rgba(0,201,167,0.25);
             animation:dotPulse 2s ease-in-out infinite;
         }
         @keyframes dotPulse{0%,100%{box-shadow:0 0 0 3px rgba(0,201,167,0.22);}50%{box-shadow:0 0 0 6px rgba(0,201,167,0.10);}}
+        .online-pill.connecting { color:var(--text-soft); background:rgba(0,0,0,0.05); border-color:rgba(0,0,0,0.10); }
+        .online-pill.connecting .online-dot { background:#aaa; box-shadow:none; animation:none; }
 
         .header-right{display:flex;align-items:center;gap:12px;flex-wrap:wrap;}
 
@@ -169,7 +171,7 @@
 
         /* ── GRID ── */
         .games-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:12px;}
-        .games-grid.featured{grid-template-columns:repeat(6,1fr);gap:13px;}
+        .games-grid.featured{gap:13px;}
 
         .game-card{
             background:rgba(255,255,255,0.30);border:1.5px solid rgba(255,255,255,0.65);
@@ -184,44 +186,41 @@
         .game-card:active{transform:translateY(-1px) scale(1.01);}
         .game-card h3{color:var(--text-dark);font-size:.84em;font-weight:600;margin-bottom:3px;line-height:1.3;}
         .game-card p{color:var(--text-soft);font-size:.72em;}
-
         .game-card.featured-card{padding:22px 12px 16px;background:rgba(255,255,255,0.36);}
         .game-card.featured-card h3{font-size:.9em;}
+
         .featured-badge{
             position:absolute;top:8px;right:8px;
             background:linear-gradient(135deg,var(--sun),var(--coral));
             color:#fff;font-size:.58em;font-weight:700;padding:2px 7px;border-radius:20px;
             letter-spacing:.5px;text-transform:uppercase;box-shadow:0 2px 8px rgba(255,107,107,0.30);
         }
-        /* rank badge for dynamic popular */
         .rank-badge{
             position:absolute;top:8px;left:8px;
-            background:rgba(0,147,196,0.85);
+            background:rgba(0,100,180,0.75);
             color:#fff;font-size:.58em;font-weight:700;padding:2px 7px;border-radius:20px;
-            letter-spacing:.3px;
         }
 
         @keyframes slideUp{from{opacity:0;transform:translateY(12px);}to{opacity:1;transform:translateY(0);}}
 
-        /* load status */
-        #loadStatus{text-align:center;padding:52px 20px;color:var(--text-mid);font-size:.9em;grid-column:1/-1;}
-        .load-spinner{width:38px;height:38px;margin:0 auto 14px;border:3px solid rgba(0,147,196,0.18);border-top-color:var(--ocean);border-radius:50%;animation:spin .75s linear infinite;}
+        /* load states */
+        .load-placeholder{text-align:center;padding:48px 20px;color:var(--text-soft);grid-column:1/-1;}
+        .load-spinner{width:36px;height:36px;margin:0 auto 14px;border:3px solid rgba(0,147,196,0.18);border-top-color:var(--ocean);border-radius:50%;animation:spin .75s linear infinite;}
         @keyframes spin{to{transform:rotate(360deg);}}
-        #loadDetail{margin-top:6px;font-size:.8em;color:var(--text-soft);}
 
         .hidden{display:none!important;}
         .no-games{text-align:center;color:var(--text-soft);padding:60px;grid-column:1/-1;}
 
         /* Responsive */
-        @media(max-width:1200px){.games-grid,.games-grid.featured{grid-template-columns:repeat(4,1fr);}}
-        @media(max-width:900px){.games-grid,.games-grid.featured{grid-template-columns:repeat(3,1fr);}}
+        @media(max-width:1200px){.games-grid{grid-template-columns:repeat(4,1fr);}}
+        @media(max-width:900px){.games-grid{grid-template-columns:repeat(3,1fr);}}
         @media(max-width:600px){
-            .games-grid,.games-grid.featured{grid-template-columns:repeat(2,1fr);}
+            .games-grid{grid-template-columns:repeat(2,1fr);}
             .header-panel{padding:14px 16px;}
             .logo-text h1{font-size:1.25em;}
             body{padding:14px 10px 150px;}
             .header-right{width:100%;}
-            .search-wrap{max-width:100%;}
+            .search-wrap{max-width:100%;flex:1;}
         }
     </style>
 </head>
@@ -271,9 +270,9 @@
             </div>
         </div>
         <div class="header-right">
-            <div class="online-pill" id="onlinePill">
+            <div class="online-pill connecting" id="onlinePill">
                 <div class="online-dot"></div>
-                <span id="onlineCount">–</span> online now
+                <span id="onlineCount">Connecting…</span>
             </div>
             <div class="search-wrap">
                 <input type="text" id="searchInput" class="search-input"
@@ -289,22 +288,19 @@
     </div>
 
     <div class="section-panel glass" id="featuredPanel">
-        <div class="section-label">🔥 Popular Right Now</div>
+        <div class="section-label" id="featuredLabel">⭐ Featured Games</div>
         <div class="games-grid featured" id="featuredList">
-            <div id="loadStatus">
-                <div class="load-spinner"></div>
-                <strong>Loading popular games…</strong>
-            </div>
+            <div class="load-placeholder"><div class="load-spinner"></div>Loading popular games…</div>
         </div>
     </div>
 
     <div class="section-panel glass" id="allPanel">
         <div class="section-label" id="allLabel">All Games</div>
         <div class="games-grid" id="gamesList">
-            <div id="loadStatus2">
+            <div class="load-placeholder">
                 <div class="load-spinner"></div>
-                <strong>Loading all games…</strong>
-                <div id="loadDetail">Fetching list.json</div>
+                <strong>Fetching game list…</strong>
+                <div id="loadDetail" style="margin-top:6px;font-size:.82em;opacity:.7;">Connecting to server</div>
             </div>
         </div>
         <p class="no-games hidden" id="noGames">No games match your search</p>
@@ -313,34 +309,37 @@
 </div>
 
 <script src="script.js"></script>
+
 <script>
 /* ── PARTICLES ── */
 (function(){
-    const c=document.getElementById('particles');
-    const cols=['rgba(255,184,48,.50)','rgba(0,147,196,.38)','rgba(255,107,107,.42)','rgba(0,201,167,.42)','rgba(255,255,255,.48)'];
+    const c   = document.getElementById('particles');
+    const cols = ['rgba(255,184,48,.50)','rgba(0,147,196,.38)','rgba(255,107,107,.42)','rgba(0,201,167,.42)','rgba(255,255,255,.48)'];
     function make(){
-        const p=document.createElement('div');p.className='particle';
-        const sz=Math.random()*7+3;
-        p.style.cssText=`width:${sz}px;height:${sz}px;left:${Math.random()*100}vw;bottom:${Math.random()*18}vh;background:${cols[Math.floor(Math.random()*cols.length)]};animation-duration:${Math.random()*10+8}s;animation-delay:${Math.random()*5}s;`;
-        c.appendChild(p);setTimeout(()=>p.remove(),22000);
+        const p   = document.createElement('div');
+        p.className = 'particle';
+        const sz  = Math.random()*7+3;
+        p.style.cssText = `width:${sz}px;height:${sz}px;left:${Math.random()*100}vw;bottom:${Math.random()*18}vh;background:${cols[Math.floor(Math.random()*cols.length)]};animation-duration:${Math.random()*10+8}s;animation-delay:${Math.random()*5}s;`;
+        c.appendChild(p);
+        setTimeout(()=>p.remove(), 22000);
     }
-    for(let i=0;i<18;i++)setTimeout(make,i*500);
-    setInterval(make,1100);
+    for(let i=0;i<18;i++) setTimeout(make, i*500);
+    setInterval(make, 1100);
 })();
 
 /* ── FACT OF THE DAY ── */
 (async function(){
-    const el=document.getElementById('announcementText');
-    const prefix='enjoy fact of the day!';
-    function key(){const n=new Date();return`${n.getFullYear()}-${n.getMonth()+1}-${n.getDate()}`;}
-    const saved=JSON.parse(localStorage.getItem('dailyFact')||'null');
-    if(saved&&saved.date===key()){el.textContent=`${prefix}  ·  ${saved.fact}`;return;}
+    const el     = document.getElementById('announcementText');
+    const prefix = 'enjoy fact of the day!';
+    function key(){ const n=new Date(); return `${n.getFullYear()}-${n.getMonth()+1}-${n.getDate()}`; }
+    const saved = JSON.parse(localStorage.getItem('dailyFact')||'null');
+    if(saved && saved.date===key()){ el.textContent=`${prefix}  ·  ${saved.fact}`; return; }
     try{
-        const r=await fetch('https://uselessfacts.jsph.pl/api/v2/facts/random');
-        const d=await r.json();
-        localStorage.setItem('dailyFact',JSON.stringify({date:key(),fact:d.text}));
-        el.textContent=`${prefix}  ·  ${d.text}`;
-    }catch{el.textContent=`${prefix}  ·  Fact unavailable today`;}
+        const r = await fetch('https://uselessfacts.jsph.pl/api/v2/facts/random');
+        const d = await r.json();
+        localStorage.setItem('dailyFact', JSON.stringify({date:key(), fact:d.text}));
+        el.textContent = `${prefix}  ·  ${d.text}`;
+    } catch { el.textContent = `${prefix}  ·  Fact unavailable today`; }
 })();
 </script>
 </body>
