@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portal</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+
+    <div class="container">
+        <!-- Access Screen -->
+        <div id="accessScreen" class="access-screen">
+            <div class="incognito-icon">
+                <img src="https://static.vecteezy.com/system/resources/previews/036/475/917/non_2x/agent-or-spy-icon-incognito-logo-vector.jpg" alt="Incognito">
+            </div>
+            <h1>Website Portal</h1>
+            <p class="subtitle">Enter access code</p>
+            <input type="password" id="codeInput" class="code-input" placeholder="Enter code">
+            <button onclick="checkCode()" class="btn">Enter</button>
+            <p id="errorMsg" class="error-msg"></p>
+        </div>
+
+        <!-- Main Screen -->
+        <div id="gamesScreen" class="games-screen hidden">
+
+            <!-- Announcements Bar -->
+            <div id="announcementBar" class="announcement-bar">
+                <span id="announcementText">
+                    2/2/26: site fixes | Fact of the day: Loading...
+                </span>
+            </div>
+
+            <div class="header">
+                <div class="header-left">
+                    <h1>Library</h1>
+                </div>
+                <button onclick="logout()" class="btn-logout">Logout</button>
+            </div>
+            
+            <div class="search-container">
+                <input type="text" id="searchInput" class="search-input" placeholder="Search..." oninput="filterGames()">
+                <span class="search-icon">🔍</span>
+            </div>
+            
+            <div id="gamesList" class="games-grid"></div>
+            <p class="no-games hidden" id="noGames">No items available</p>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+
+    <!-- FACT OF THE DAY SCRIPT -->
+    <script>
+        (async function factOfTheDay() {
+            const announcement = document.getElementById("announcementText");
+
+            const manualAnnouncement = "enjoy fact of the day!";
+
+            // Local date key (not UTC)
+            function getLocalDateKey() {
+                const now = new Date();
+                return `${now.getFullYear()}-${now.getMonth() + 1}-${now.getDate()}`;
+            }
+
+            const todayKey = getLocalDateKey();
+            const saved = JSON.parse(localStorage.getItem("dailyFact"));
+
+            // If same local day, reuse saved fact
+            if (saved && saved.date === todayKey) {
+                announcement.textContent = `${manualAnnouncement} | Fact of the day: ${saved.fact}`;
+                return;
+            }
+
+            // Fetch new fact if day changed
+            try {
+                const res = await fetch("https://uselessfacts.jsph.pl/api/v2/facts/random");
+                const data = await res.json();
+                const fact = data.text;
+
+                localStorage.setItem("dailyFact", JSON.stringify({
+                    date: todayKey,
+                    fact
+                }));
+
+                announcement.textContent = `${manualAnnouncement} | Fact of the day: ${fact}`;
+            } catch (err) {
+                announcement.textContent = `${manualAnnouncement} | Fact of the day: unavailable`;
+                console.error("Fact API error:", err);
+            }
+        })();
+    </script>
+
+    <!-- Snow Effect -->
+    <script>
+        (function() {
+            function initSnow() {
+                const snowContainer = document.querySelector('.snowflakes');
+                if (!snowContainer) return;
+
+                let snowflakes = [];
+
+                function createSnowflake() {
+                    if (snowflakes.length >= 30) return;
+
+                    const snowflake = document.createElement('div');
+                    snowflake.className = 'snowflake';
+
+                    const startX = Math.random() * window.innerWidth;
+                    const size = Math.random() * 4 + 2;
+                    const duration = Math.random() * 3 + 4;
+                    const windOffset = Math.random() * 100 - 50;
+
+                    snowflake.style.left = startX + 'px';
+                    snowflake.style.width = size + 'px';
+                    snowflake.style.height = size + 'px';
+                    snowflake.style.opacity = Math.random() * 0.6 + 0.4;
+
+                    snowContainer.appendChild(snowflake);
+                    snowflakes.push(snowflake);
+
+                    const startTime = Date.now();
+
+                    function animate() {
+                        const elapsed = (Date.now() - startTime) / 1000;
+                        const progress = elapsed / duration;
+
+                        if (progress >= 1) {
+                            snowflake.remove();
+                            snowflakes = snowflakes.filter(s => s !== snowflake);
+                            return;
+                        }
+
+                        const y = progress * window.innerHeight;
+                        const x = startX + (windOffset * progress);
+
+                        snowflake.style.transform = `translate(${x - startX}px, ${y}px)`;
+
+                        requestAnimationFrame(animate);
+                    }
+
+                    animate();
+                }
+
+                setInterval(createSnowflake, 200);
+
+                for (let i = 0; i < 15; i++) {
+                    setTimeout(createSnowflake, i * 200);
+                }
+            }
+
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', initSnow);
+            } else {
+                initSnow();
+            }
+        })();
+    </script>
+
+</body>
+</html>

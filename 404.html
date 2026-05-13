@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>404 - Page Not Found</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #000;
+            color: #fff;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .error-container {
+            text-align: center;
+            max-width: 600px;
+        }
+
+        .computer {
+            width: 300px;
+            height: 280px;
+            margin: 0 auto 40px;
+            position: relative;
+        }
+
+        /* Monitor */
+        .monitor {
+            width: 260px;
+            height: 180px;
+            background: linear-gradient(135deg, #2a2a2a 0%, #1a1a1a 100%);
+            border: 8px solid #333;
+            border-radius: 12px;
+            margin: 0 auto;
+            position: relative;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        }
+
+        /* Screen */
+        .screen {
+            width: 100%;
+            height: 100%;
+            background: #0a0a0a;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 64px;
+            color: #666;
+            font-weight: bold;
+        }
+
+        /* Monitor stand */
+        .stand {
+            width: 80px;
+            height: 8px;
+            background: #333;
+            margin: 0 auto;
+            border-radius: 4px;
+        }
+
+        .base {
+            width: 160px;
+            height: 12px;
+            background: #333;
+            margin: 8px auto 0;
+            border-radius: 6px;
+        }
+
+        .error-code {
+            font-size: 120px;
+            font-weight: 800;
+            color: #fff;
+            margin-bottom: 20px;
+            line-height: 1;
+        }
+
+        .error-message {
+            font-size: 32px;
+            font-weight: 600;
+            color: #fff;
+            margin-bottom: 20px;
+        }
+
+        .error-description {
+            font-size: 16px;
+            color: #888;
+            margin-bottom: 40px;
+            line-height: 1.6;
+        }
+
+        .btn-home {
+            display: inline-block;
+            padding: 14px 32px;
+            font-size: 16px;
+            font-weight: 500;
+            background: #fff;
+            color: #000;
+            border: none;
+            border-radius: 8px;
+            text-decoration: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-home:hover {
+            background: #e0e0e0;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(255, 255, 255, 0.2);
+        }
+
+        /* Subtle animation for the sad face */
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+
+        .screen {
+            animation: blink 3s ease-in-out infinite;
+        }
+    </style>
+</head>
+<body>
+    <div class="error-container">
+        <div class="computer">
+            <div class="monitor">
+                <div class="screen">:(</div>
+            </div>
+            <div class="stand"></div>
+            <div class="base"></div>
+        </div>
+        
+        <div class="error-code">404</div>
+        <div class="error-message">Page Not Found</div>
+        <div class="error-description">
+            The page you're looking for doesn't exist or has been moved.
+        </div>
+        
+        <a href="/" class="btn-home">Go Back Home</a>
+    </div>
+</body>
+</html>

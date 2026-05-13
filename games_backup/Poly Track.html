@@ -1,0 +1,91 @@
+
+<!-- Ultimate Game Stash file--> 
+
+
+
+
+
+<!DOCTYPE html> <html> <head> <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/gh/wergboy/NLP@e46f2d7f33015cf93201e664a2e493800c03284d/pt/css/message_box_ui.css"> <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/gh/wergboy/NLP@e46f2d7f33015cf93201e664a2e493800c03284d/pt/css/customization.css"> <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/gh/wergboy/NLP@e46f2d7f33015cf93201e664a2e493800c03284d/pt/css/debug_ui.css"> <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/gh/wergboy/NLP@e46f2d7f33015cf93201e664a2e493800c03284d/pt/css/editor.css"> <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/gh/wergboy/NLP@e46f2d7f33015cf93201e664a2e493800c03284d/pt/css/editor_height_selector.css"> <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/gh/wergboy/NLP@e46f2d7f33015cf93201e664a2e493800c03284d/pt/css/hint.css"> <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/gh/wergboy/NLP@e46f2d7f33015cf93201e664a2e493800c03284d/pt/css/loading_ui.css"> <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/gh/wergboy/NLP@e46f2d7f33015cf93201e664a2e493800c03284d/pt/css/menu.css"> <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/gh/wergboy/NLP@e46f2d7f33015cf93201e664a2e493800c03284d/pt/css/speedometer.css"> <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/gh/wergboy/NLP@e46f2d7f33015cf93201e664a2e493800c03284d/pt//css/theme.css"> <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/gh/wergboy/NLP@e46f2d7f33015cf93201e664a2e493800c03284d/pt/css/time_announcer.css"> <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/gh/wergboy/NLP@e46f2d7f33015cf93201e664a2e493800c03284d/pt/css/timer.css"> <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/gh/wergboy/NLP@e46f2d7f33015cf93201e664a2e493800c03284d/pt/css/track_export_ui.css"> <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/gh/wergboy/NLP@e46f2d7f33015cf93201e664a2e493800c03284d/pt/css/track_selection_ui.css"> <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/gh/wergboy/NLP@e46f2d7f33015cf93201e664a2e493800c03284d/pt/css/transition_system.css"> </head> <body>
+<!-- DOMAIN PROTECTION SCRIPT - AUTO-GENERATED -->
+<script>
+(function() {
+    'use strict';
+
+    const ALLOWED_DOMAINS = [
+        "portal.dever.pro",
+        "www.portal.dever.pro",
+        "localhost",
+        "127.0.0.1",
+        "gam12.netlify.app",
+        "www.gam12.netlify.app"
+];
+
+    if (window.location.protocol === 'file:') {
+        blockAccess('This game cannot be run from a local file.');
+        return;
+    }
+
+    const currentDomain = window.location.hostname;
+    const isAllowed = ALLOWED_DOMAINS.some(domain =>
+        currentDomain === domain || currentDomain.endsWith('.' + domain)
+    );
+
+    if (!isAllowed) {
+        blockAccess('This game can only be played on the official website.');
+        return;
+    }
+
+    if (window.top === window.self) {
+        blockAccess('This game must be launched from the official portal.');
+        return;
+    }
+
+    try {
+        const parentDomain = new URL(window.top.location.href).hostname;
+        const isParentAllowed = ALLOWED_DOMAINS.some(domain =>
+            parentDomain === domain || parentDomain.endsWith('.' + domain)
+        );
+        if (!isParentAllowed) throw 0;
+    } catch {
+        blockAccess('This game must be launched from the official portal.');
+        return;
+    }
+
+    function blockAccess(message) {
+        document.body.innerHTML = '';
+        const overlay = document.createElement('div');
+        overlay.innerHTML = `
+            <div style="display:flex;align-items:center;justify-content:center;height:100vh;
+            background:#000;color:#fff;font-family:Arial;text-align:center;">
+                <div>
+                    <h1 style="color:#d70000;font-size:2.5em;">🚫 Access Denied</h1>
+                    <p style="font-size:1.2em;">${message}</p>
+                </div>
+            </div>`;
+        overlay.style.cssText = 'position:fixed;inset:0;z-index:2147483647;';
+        document.body.appendChild(overlay);
+        document.body.style.overflow = 'hidden';
+        throw new Error('Blocked');
+    }
+
+    // ❌ PAUSE SYSTEM REMOVED
+})();
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ <canvas id="screen"></canvas> <div id="ui"></div> <div id="transition-layer"></div> <script src="https://cdn.jsdelivr.net/gh/wergboy/NLP@e46f2d7f33015cf93201e664a2e493800c03284d/pt/lib/ammo.js" defer></script> <script type="module" src="https://cdn.jsdelivr.net/gh/wergboy/NLP@22f6094b69b1c9d45e17a82e93a41b7d88f99574/pt/dist/bundle.js" defer></script> </body> </html>

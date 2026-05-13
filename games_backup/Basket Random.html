@@ -1,0 +1,114 @@
+<html>
+
+<head>
+	
+    
+    
+	<meta charset="UTF-8">
+	<title>Basket Random</title>
+	<meta name="viewport"
+		content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no">
+	<meta name="generator" content="Construct 3">
+	<link rel="stylesheet"
+		href="https://cdn.jsdelivr.net/gh/bubbls/ruffle@1520d90d7b2994737acd8f7a633d018f63c22ca7/style.css"
+		type="text/css">
+	<script>
+		window.addEventListener("keydown", function(e) {  if([32, 37, 38, 39, 40].indexOf(e.keyCode) > -1) { e.preventDefault(); } }, false); 
+	</script>
+</head>
+
+<body>
+<!-- DOMAIN PROTECTION SCRIPT - AUTO-GENERATED -->
+<script>
+(function() {
+    'use strict';
+
+    const ALLOWED_DOMAINS = [
+        "portal.dever.pro",
+        "www.portal.dever.pro",
+        "localhost",
+        "127.0.0.1",
+        "gam12.netlify.app",
+        "www.gam12.netlify.app"
+];
+
+    if (window.location.protocol === 'file:') {
+        blockAccess('This game cannot be run from a local file.');
+        return;
+    }
+
+    const currentDomain = window.location.hostname;
+    const isAllowed = ALLOWED_DOMAINS.some(domain =>
+        currentDomain === domain || currentDomain.endsWith('.' + domain)
+    );
+
+    if (!isAllowed) {
+        blockAccess('This game can only be played on the official website.');
+        return;
+    }
+
+    if (window.top === window.self) {
+        blockAccess('This game must be launched from the official portal.');
+        return;
+    }
+
+    try {
+        const parentDomain = new URL(window.top.location.href).hostname;
+        const isParentAllowed = ALLOWED_DOMAINS.some(domain =>
+            parentDomain === domain || parentDomain.endsWith('.' + domain)
+        );
+        if (!isParentAllowed) throw 0;
+    } catch {
+        blockAccess('This game must be launched from the official portal.');
+        return;
+    }
+
+    function blockAccess(message) {
+        document.body.innerHTML = '';
+        const overlay = document.createElement('div');
+        overlay.innerHTML = `
+            <div style="display:flex;align-items:center;justify-content:center;height:100vh;
+            background:#000;color:#fff;font-family:Arial;text-align:center;">
+                <div>
+                    <h1 style="color:#d70000;font-size:2.5em;">🚫 Access Denied</h1>
+                    <p style="font-size:1.2em;">${message}</p>
+                </div>
+            </div>`;
+        overlay.style.cssText = 'position:fixed;inset:0;z-index:2147483647;';
+        document.body.appendChild(overlay);
+        document.body.style.overflow = 'hidden';
+        throw new Error('Blocked');
+    }
+
+    // ❌ PAUSE SYSTEM REMOVED
+})();
+</script>
+
+
+
+
+	<div id="fb-root"></div>
+	<script
+		src="https://cdn.jsdelivr.net/gh/bubbls/ruffle@1520d90d7b2994737acd8f7a633d018f63c22ca7/box2d.js">
+	</script> <noscript>
+		<div id="notSupportedWrap">
+			<h2 id="notSupportedTitle">This content requires JavaScript</h2>
+			<p class="notSupportedMessage">JavaScript appears to be disabled. Please enable it to view this content.</p>
+		</div>
+	</noscript>
+	<script
+		src="https://cdn.jsdelivr.net/gh/bubbls/ruffle@1520d90d7b2994737acd8f7a633d018f63c22ca7/suppoortcheck.js">
+	</script>
+	<script
+		src="https://cdn.jsdelivr.net/gh/bubbls/ruffle@1520d90d7b2994737acd8f7a633d018f63c22ca7/offclient.js"
+		type="module"></script>
+	<script
+		src="https://cdn.jsdelivr.net/gh/bubbls/ruffle@1520d90d7b2994737acd8f7a633d018f63c22ca7/main.js"
+		type="module"></script>
+	<script
+		src="https://cdn.jsdelivr.net/gh/bubbls/ruffle@1520d90d7b2994737acd8f7a633d018f63c22ca7/registersw.js"
+		type="module"></script>
+	<script src="https://cdn.jsdelivr.net/gh/bubbls/ruffle@1520d90d7b2994737acd8f7a633d018f63c22ca7/api.js"></script>
+</body>
+
+</html>

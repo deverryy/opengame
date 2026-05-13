@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en-us">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1.0, user-scalable=no, shrink-to-fit=yes">
+
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/ftbaldana/poklp@main/aaaaaa/TemplateData/style.css">
+  <link rel="manifest" href="https://cdn.jsdelivr.net/gh/ftbaldana/poklp@main/aaaaaa/manifest.webmanifest">
+
+  <!-- Firebase -->
+  <script src="https://www.gstatic.com/firebasejs/10.2.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.2.0/firebase-analytics-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.2.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.2.0/firebase-remote-config-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.2.0/firebase-firestore-compat.js"></script>
+
+  <script>
+    if (window.location.href.includes("dev")) {
+      const s = document.createElement("script");
+      s.src = "firebase/firebase_dev.js";
+      document.head.appendChild(s);
+    }
+  </script>
+
+  <script src="https://cdn.jsdelivr.net/gh/ftbaldana/poklp@main/aaaaaa/firebase/firebase.js"></script>
+
+  <!-- Xsolla -->
+  <script src="https://cdn.jsdelivr.net/gh/ftbaldana/poklp@main/aaaaaa/xsolla/xsolla.js"></script>
+
+  <script src="https://cdn.jsdelivr.net/gh/ftbaldana/poklp@main/aaaaaa/utils.js"></script>
+
+  <!-- Google Analytics (optional, NOT ads) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-ZN6YDCFCY8"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-ZN6YDCFCY8');
+  </script>
+
+  <style>
+    body { background: #000; }
+    #unity-canvas { outline: none; }
+  </style>
+</head>
+
+<body>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  <div id="unity-container">
+    <canvas id="unity-canvas" width="703" height="511" tabindex="-1"></canvas>
+
+    <div id="unity-loading-bar" style="display:none;">
+      <div id="loading-logo"></div>
+      <div id="unity-progress-bar-empty">
+        <div id="unity-progress-bar-full"></div>
+      </div>
+    </div>
+
+    <div id="unity-warning"></div>
+  </div>
+
+  <script>
+    const container = document.querySelector("#unity-container");
+    const canvas = document.querySelector("#unity-canvas");
+    const loadingBar = document.querySelector("#unity-loading-bar");
+    const progressBarFull = document.querySelector("#unity-progress-bar-full");
+    const warningBanner = document.querySelector("#unity-warning");
+
+    function unityShowBanner(msg, type) {
+      const div = document.createElement('div');
+      div.innerHTML = msg;
+      warningBanner.appendChild(div);
+      if (type === 'error') div.style = 'background:red;padding:10px;';
+      else setTimeout(() => div.remove(), 5000);
+    }
+
+    const LATEST_TXT_URL = "https://danidrorm.github.io/RGFiles/latest.txt";
+    const REPO_CDN_BASE = "https://cdn.jsdelivr.net/gh/Danidrorm/RGFiles@";
+
+    const UNITY_FILES = {
+      loader: "b23dd96997961653e2825455633aac82.loader.js",
+      data: "1c6b3fb6706375cf5f4e35c5d914385e.data.unityweb",
+      framework: "98438f2e7a94945eb0c97aa68a131683.framework.js.unityweb",
+      wasm: "def2138bbbbbb3dc09c6c604c4109263.wasm.unityweb",
+    };
+
+    async function fetchLatestRef() {
+      const res = await fetch(LATEST_TXT_URL + "?t=" + Date.now(), { cache: "no-store" });
+      return (await res.text()).trim();
+    }
+
+    function loadScript(src) {
+      return new Promise((resolve, reject) => {
+        const s = document.createElement("script");
+        s.src = src;
+        s.onload = resolve;
+        s.onerror = reject;
+        document.body.appendChild(s);
+      });
+    }
+
+    loadingBar.style.display = "block";
+
+    (async () => {
+      let ref = "main";
+      try { ref = await fetchLatestRef(); } catch {}
+      const buildUrl = REPO_CDN_BASE + ref;
+
+      await loadScript(buildUrl + "/" + UNITY_FILES.loader);
+
+      createUnityInstance(canvas, {
+        dataUrl: buildUrl + "/" + UNITY_FILES.data,
+        frameworkUrl: buildUrl + "/" + UNITY_FILES.framework,
+        codeUrl: buildUrl + "/" + UNITY_FILES.wasm,
+        streamingAssetsUrl: "StreamingAssets",
+        productVersion: "0.302",
+        showBanner: unityShowBanner,
+      }, p => progressBarFull.style.width = (p * 100) + "%")
+      .then(instance => {
+        loadingBar.style.display = "none";
+        window.unityInstance = instance;
+        initializeFirebase(instance);
+        initializeUtils(instance);
+      });
+    })();
+  </script>
+</body>
+</html>

@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portal</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Hearts Effect -->
+    <div class="hearts" aria-hidden="true"></div>
+
+    <div class="container">
+        <!-- Access Screen -->
+        <div id="accessScreen" class="access-screen">
+            <div class="icon">
+                <div class="heart-icon">💝</div>
+            </div>
+            <h1>Website Portal</h1>
+            <p class="subtitle">Enter access code</p>
+            <input type="password" id="codeInput" class="code-input" placeholder="Enter code">
+            <button onclick="checkCode()" class="btn">Enter</button>
+            <p id="errorMsg" class="error-msg"></p>
+        </div>
+
+        <!-- Main Screen -->
+        <div id="gamesScreen" class="games-screen hidden">
+
+            <!-- Announcements Bar -->
+            <div id="announcementBar" class="announcement-bar">
+                <span id="announcementText">
+                    💕 Happy Valentine's Day! | Love fact of the day: Loading...
+                </span>
+            </div>
+
+            <div class="header">
+                <div class="header-left">
+                    <div class="heart-icon-small">💖</div>
+                    <h1>Library</h1>
+                </div>
+                <button onclick="logout()" class="btn-logout">Logout</button>
+            </div>
+            
+            <div class="search-container">
+                <input type="text" id="searchInput" class="search-input" placeholder="Search..." oninput="filterGames()">
+                <span class="search-icon">💗</span>
+            </div>
+            
+            <div id="gamesList" class="games-grid"></div>
+            <p class="no-games hidden" id="noGames">No items available</p>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+
+    <!-- LOVE FACT OF THE DAY SCRIPT -->
+    <script>
+        (async function loveFactOfTheDay() {
+            const announcement = document.getElementById("announcementText");
+
+            const manualAnnouncement = "Temportary retheme for Valentine's Day";
+
+            // Curated love facts
+            const loveFacts = [
+                "Falling in love has a similar neurological effect as getting high on cocaine.",
+                "Couples who are too similar to each other are not likely to last.",
+                "Looking into each other's eyes can make strangers fall in love.",
+                "Heartbreak is real - studies show that intense grief can trigger a heart attack.",
+                "The heart symbol has nothing to do with the actual shape of a human heart.",
+                "Romantic love eventually ends - lasting anywhere from one to three years.",
+                "People at the same level of attractiveness are more likely to end up together.",
+                "Butterflies in your stomach are real and caused by adrenaline.",
+                "Cuddling releases natural painkillers in your body.",
+                "Holding hands with someone you love can alleviate physical pain and stress.",
+                "Couples' hearts beat in sync when they're in love.",
+                "The average person spends two weeks of their life kissing.",
+                "Red roses are associated with romance because of their connection to Venus and Aphrodite.",
+                "The tradition of wearing wedding rings on the fourth finger comes from the belief it has a vein connected to the heart.",
+                "Valentine's Day is named after Saint Valentine, who performed secret marriages against the emperor's wishes.",
+                "Scientists estimate it takes between 90 seconds and 4 minutes to decide if you fancy someone.",
+                "Couples who laugh together have stronger relationships.",
+                "The feeling of being 'in love' is chemically similar to obsessive-compulsive disorder.",
+                "Your heart beats faster when you see someone you're attracted to.",
+                "Love and cocaine activate similar regions of the brain."
+            ];
+
+            // Local date key (not UTC)
+            function getLocalDateKey() {
+                const now = new Date();
+                return `${now.getFullYear()}-${now.getMonth() + 1}-${now.getDate()}`;
+            }
+
+            const todayKey = getLocalDateKey();
+            const saved = JSON.parse(localStorage.getItem("dailyLoveFact"));
+
+            // If same local day, reuse saved fact
+            if (saved && saved.date === todayKey) {
+                announcement.textContent = `${manualAnnouncement} | Love fact of the day: ${saved.fact}`;
+                return;
+            }
+
+            // Get a random love fact for the new day
+            const randomFact = loveFacts[Math.floor(Math.random() * loveFacts.length)];
+
+            localStorage.setItem("dailyLoveFact", JSON.stringify({
+                date: todayKey,
+                fact: randomFact
+            }));
+
+            announcement.textContent = `${manualAnnouncement} | Love fact of the day: ${randomFact}`;
+        })();
+    </script>
+
+    <!-- Hearts Effect -->
+    <script>
+        (function() {
+            function initHearts() {
+                const heartsContainer = document.querySelector('.hearts');
+                if (!heartsContainer) return;
+
+                let hearts = [];
+                const heartSymbols = ['❤️', '💕', '💖', '💗', '💓', '💝'];
+
+                function createHeart() {
+                    if (hearts.length >= 25) return;
+
+                    const heart = document.createElement('div');
+                    heart.className = 'heart';
+                    heart.textContent = heartSymbols[Math.floor(Math.random() * heartSymbols.length)];
+
+                    const startX = Math.random() * window.innerWidth;
+                    const size = Math.random() * 20 + 15;
+                    const duration = Math.random() * 4 + 5;
+                    const sway = Math.random() * 100 - 50;
+
+                    heart.style.left = startX + 'px';
+                    heart.style.fontSize = size + 'px';
+                    heart.style.opacity = Math.random() * 0.5 + 0.3;
+
+                    heartsContainer.appendChild(heart);
+                    hearts.push(heart);
+
+                    const startTime = Date.now();
+
+                    function animate() {
+                        const elapsed = (Date.now() - startTime) / 1000;
+                        const progress = elapsed / duration;
+
+                        if (progress >= 1) {
+                            heart.remove();
+                            hearts = hearts.filter(h => h !== heart);
+                            return;
+                        }
+
+                        const y = progress * window.innerHeight;
+                        const x = startX + (sway * Math.sin(progress * Math.PI * 2));
+                        const rotation = progress * 360;
+
+                        heart.style.transform = `translate(${x - startX}px, ${y}px) rotate(${rotation}deg)`;
+
+                        requestAnimationFrame(animate);
+                    }
+
+                    animate();
+                }
+
+                setInterval(createHeart, 300);
+
+                for (let i = 0; i < 12; i++) {
+                    setTimeout(createHeart, i * 250);
+                }
+            }
+
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', initHearts);
+            } else {
+                initHearts();
+            }
+        })();
+    </script>
+
+</body>
+</html>

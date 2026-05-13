@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #000;
+            color: #fff;
+            min-height: 100vh;
+            padding: 40px 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 40px;
+        }
+
+        .incognito-icon img {
+            width: 50px;
+            height: 50px;
+            filter: invert(1) brightness(1.2);
+        }
+
+        h1 {
+            font-size: 2em;
+            font-weight: 600;
+        }
+
+        .panel {
+            background: #0a0a0a;
+            border: 1px solid #222;
+            border-radius: 8px;
+            padding: 30px;
+            margin-bottom: 25px;
+        }
+
+        .panel h2 {
+            font-size: 1.4em;
+            margin-bottom: 20px;
+            color: #fff;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #888;
+            font-size: 0.9em;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 12px 16px;
+            font-size: 15px;
+            background: #111;
+            border: 1px solid #333;
+            border-radius: 6px;
+            color: #fff;
+            transition: all 0.2s;
+        }
+
+        .input-group input:focus {
+            outline: none;
+            border-color: #555;
+            background: #151515;
+        }
+
+        .btn {
+            padding: 12px 32px;
+            font-size: 15px;
+            font-weight: 500;
+            background: #fff;
+            color: #000;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-right: 10px;
+        }
+
+        .btn:hover {
+            background: #e0e0e0;
+            transform: translateY(-1px);
+        }
+
+        .btn-danger {
+            background: #d70000;
+            color: #fff;
+        }
+
+        .btn-danger:hover {
+            background: #b00000;
+        }
+
+        .btn-success {
+            background: #1b7d1b;
+            color: #fff;
+        }
+
+        .btn-success:hover {
+            background: #156015;
+        }
+
+        .status-msg {
+            margin-top: 15px;
+            padding: 12px;
+            border-radius: 6px;
+            font-size: 0.9em;
+            display: none;
+        }
+
+        .status-msg.success {
+            background: #062e06;
+            border: 1px solid #1b7d1b;
+            color: #8bff8b;
+        }
+
+        .status-msg.error {
+            background: #2e0606;
+            border: 1px solid #7d1b1b;
+            color: #ff8b8b;
+        }
+
+        .blocked-list {
+            margin-top: 20px;
+        }
+
+        .blocked-item {
+            background: #111;
+            border: 1px solid #333;
+            border-radius: 6px;
+            padding: 15px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .blocked-item-info {
+            flex: 1;
+        }
+
+        .blocked-item-id {
+            font-weight: 600;
+            color: #fff;
+            margin-bottom: 4px;
+        }
+
+        .blocked-item-time {
+            font-size: 0.85em;
+            color: #666;
+        }
+
+        .btn-small {
+            padding: 8px 16px;
+            font-size: 13px;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .stat-card {
+            background: #111;
+            border: 1px solid #333;
+            border-radius: 6px;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 2.5em;
+            font-weight: 700;
+            color: #fff;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            color: #888;
+            font-size: 0.9em;
+        }
+
+        .empty-state {
+            text-align: center;
+            color: #555;
+            padding: 40px;
+            font-size: 0.95em;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="incognito-icon">
+                <img src="https://static.vecteezy.com/system/resources/previews/036/475/917/non_2x/agent-or-spy-icon-incognito-logo-vector.jpg" alt="Incognito">
+            </div>
+            <h1>Admin Panel</h1>
+        </div>
+
+        <div class="stats">
+            <div class="stat-card">
+                <div class="stat-number" id="totalBlocked">0</div>
+                <div class="stat-label">Blocked Sessions</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="totalActive">0</div>
+                <div class="stat-label">Active Sessions</div>
+            </div>
+        </div>
+
+        <div class="panel">
+            <h2>Block Session</h2>
+            <div class="input-group">
+                <label for="sessionId">Session ID</label>
+                <input type="text" id="sessionId" placeholder="Enter 5-digit session ID">
+            </div>
+            <button class="btn btn-danger" onclick="blockSession()">Block Session</button>
+            <div class="status-msg" id="blockStatus"></div>
+        </div>
+
+        <div class="panel">
+            <h2>Unblock Session</h2>
+            <div class="input-group">
+                <label for="unblockId">Session ID</label>
+                <input type="text" id="unblockId" placeholder="Enter session ID to unblock">
+            </div>
+            <button class="btn btn-success" onclick="unblockSession()">Unblock Session</button>
+            <div class="status-msg" id="unblockStatus"></div>
+        </div>
+
+        <div class="panel">
+            <h2>Blocked Sessions</h2>
+            <div id="blockedList" class="blocked-list">
+                <div class="empty-state">No blocked sessions</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Get blocked sessions from localStorage
+        function getBlockedSessions() {
+            const blocked = localStorage.getItem('blockedSessions');
+            return blocked ? JSON.parse(blocked) : [];
+        }
+
+        // Save blocked sessions to localStorage
+        function saveBlockedSessions(sessions) {
+            localStorage.setItem('blockedSessions', JSON.stringify(sessions));
+            updateUI();
+        }
+
+        // Block a session
+        function blockSession() {
+            const input = document.getElementById('sessionId');
+            const sessionId = input.value.trim();
+            const status = document.getElementById('blockStatus');
+
+            if (!sessionId) {
+                showStatus(status, 'Please enter a session ID', 'error');
+                return;
+            }
+
+            if (!/^\d{5}$/.test(sessionId)) {
+                showStatus(status, 'Session ID must be 5 digits', 'error');
+                return;
+            }
+
+            const blocked = getBlockedSessions();
+            
+            if (blocked.find(s => s.id === sessionId)) {
+                showStatus(status, 'Session is already blocked', 'error');
+                return;
+            }
+
+            blocked.push({
+                id: sessionId,
+                blockedAt: new Date().toISOString()
+            });
+
+            saveBlockedSessions(blocked);
+            input.value = '';
+            showStatus(status, `Session ${sessionId} has been blocked`, 'success');
+        }
+
+        // Unblock a session
+        function unblockSession() {
+            const input = document.getElementById('unblockId');
+            const sessionId = input.value.trim();
+            const status = document.getElementById('unblockStatus');
+
+            if (!sessionId) {
+                showStatus(status, 'Please enter a session ID', 'error');
+                return;
+            }
+
+            const blocked = getBlockedSessions();
+            const filtered = blocked.filter(s => s.id !== sessionId);
+
+            if (blocked.length === filtered.length) {
+                showStatus(status, 'Session not found in blocked list', 'error');
+                return;
+            }
+
+            saveBlockedSessions(filtered);
+            input.value = '';
+            showStatus(status, `Session ${sessionId} has been unblocked`, 'success');
+        }
+
+        // Remove a blocked session
+        function removeBlocked(sessionId) {
+            const blocked = getBlockedSessions();
+            const filtered = blocked.filter(s => s.id !== sessionId);
+            saveBlockedSessions(filtered);
+        }
+
+        // Show status message
+        function showStatus(element, message, type) {
+            element.textContent = message;
+            element.className = `status-msg ${type}`;
+            element.style.display = 'block';
+
+            setTimeout(() => {
+                element.style.display = 'none';
+            }, 3000);
+        }
+
+        // Update UI
+        function updateUI() {
+            const blocked = getBlockedSessions();
+            const listContainer = document.getElementById('blockedList');
+            
+            // Update stats
+            document.getElementById('totalBlocked').textContent = blocked.length;
+            
+            // Update blocked list
+            if (blocked.length === 0) {
+                listContainer.innerHTML = '<div class="empty-state">No blocked sessions</div>';
+            } else {
+                listContainer.innerHTML = blocked
+                    .sort((a, b) => new Date(b.blockedAt) - new Date(a.blockedAt))
+                    .map(session => `
+                        <div class="blocked-item">
+                            <div class="blocked-item-info">
+                                <div class="blocked-item-id">Session: ${session.id}</div>
+                                <div class="blocked-item-time">Blocked: ${new Date(session.blockedAt).toLocaleString()}</div>
+                            </div>
+                            <button class="btn btn-success btn-small" onclick="removeBlocked('${session.id}')">Unblock</button>
+                        </div>
+                    `).join('');
+            }
+        }
+
+        // Allow Enter key to submit
+        document.getElementById('sessionId').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') blockSession();
+        });
+
+        document.getElementById('unblockId').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') unblockSession();
+        });
+
+        // Initialize UI
+        updateUI();
+    </script>
+</body>
+</html>

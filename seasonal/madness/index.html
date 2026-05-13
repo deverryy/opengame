@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portal March Madness 2026</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:wght@400;600;700;800;900&family=Barlow:wght@300;400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<div class="hardwood-bg" aria-hidden="true"></div>
+<div class="snowflakes" aria-hidden="true"></div>
+
+<!-- Form Modal -->
+<div id="formOverlay" class="form-overlay" onclick="handleOverlayClick(event)">
+    <div class="form-modal">
+        <div class="form-modal-bar"></div>
+        <div class="form-modal-header">
+            <span class="form-modal-title">Game Suggestion</span>
+            <div style="display:flex;align-items:center;gap:16px;">
+                <span class="form-modal-meta">Community Input</span>
+                <button class="form-close-btn" onclick="closeForm()" title="Close">✕</button>
+            </div>
+        </div>
+        <div class="form-iframe-wrapper">
+            <iframe src="https://docs.google.com/forms/d/e/1FAIpQLSeqgiQF7O02gJhn8jlsPgF891LPzBeE0qiNRvfGnnnm9fF_iw/viewform?embedded=true" title="Game Suggestion Form" loading="lazy">Loading…</iframe>
+        </div>
+        <div class="form-modal-footer">
+            <div class="form-footer-dot"></div>
+            <span class="form-footer-text">Requests with the most votes get added first</span>
+            <span class="escape-hint"><kbd>ESC</kbd> to close</span>
+        </div>
+    </div>
+</div>
+
+<div class="container">
+
+    <!-- ACCESS SCREEN -->
+    <div id="accessScreen" class="access-screen" style="margin-top:80px;">
+        <span class="eyebrow">🏀 March Madness 2026</span>
+        <h1>WEBSITE<br><span>PORTAL</span></h1>
+        <p class="subtitle">Enter your access code to enter</p>
+        <input type="password" id="codeInput" class="code-input" placeholder="ACCESS CODE">
+        <br>
+        <button onclick="checkCode()" class="btn">Enter</button>
+        <p id="errorMsg" class="error-msg"></p>
+    </div>
+
+    <!-- MAIN SCREEN -->
+    <div id="gamesScreen" class="games-screen hidden">
+        <div id="announcementBar" class="announcement-bar">
+            <span id="announcementText">Fact of the week: nick is a larp and is the total reason why this site got blocked and why it took me so long to make this theme.</span>
+        </div>
+        <div class="header">
+            <div class="header-left"><h1>LIBRARY</h1></div>
+            <div style="display:flex;align-items:center;gap:10px;">
+                <button onclick="openForm()" class="btn-suggest">Suggest a Game</button>
+                <button onclick="logout()" class="btn-logout">Logout</button>
+            </div>
+        </div>
+        <div class="search-container">
+            <input type="text" id="searchInput" class="search-input" placeholder="SEARCH GAMES..." oninput="filterGames()">
+            <span class="search-icon">🔍</span>
+        </div>
+        <div id="gamesList" class="games-grid"></div>
+        <p class="no-games hidden" id="noGames">No items found</p>
+    </div>
+
+</div><!-- /container -->
+
+<script src="script.js"></script>
+<script>
+
+function openForm() {
+    document.getElementById('formOverlay').classList.add('active');
+    document.body.style.overflow = 'hidden';
+}
+function closeForm() {
+    document.getElementById('formOverlay').classList.remove('active');
+    document.body.style.overflow = '';
+}
+function handleOverlayClick(e) {
+    if (e.target === document.getElementById('formOverlay')) closeForm();
+}
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeForm(); });
+</script>
+</body>
+</html>

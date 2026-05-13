@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portal</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+    <!-- Rising Embers -->
+    <div class="snowflakes" aria-hidden="true"></div>
+
+    <!-- Game Suggestion Modal -->
+    <div id="formOverlay" class="form-overlay" onclick="handleOverlayClick(event)">
+        <div class="form-modal">
+            <div class="form-modal-bar"></div>
+            <div class="form-modal-header">
+                <span class="form-modal-title">Game Suggestion</span>
+                <div style="display:flex;align-items:center;gap:16px;">
+                    <span class="form-modal-meta">COMMUNITY INPUT</span>
+                    <button class="form-close-btn" onclick="closeForm()" title="Close">✕</button>
+                </div>
+            </div>
+            <div class="form-iframe-wrapper">
+                <iframe
+                    src="https://docs.google.com/forms/d/e/1FAIpQLSeqgiQF7O02gJhn8jlsPgF891LPzBeE0qiNRvfGnnnm9fF_iw/viewform?embedded=true"
+                    title="Game Suggestion Form"
+                    loading="lazy">
+                    Loading…
+                </iframe>
+            </div>
+            <div class="form-modal-footer">
+                <div class="form-footer-dot"></div>
+                <span class="form-footer-text">Requests with the most votes get added first</span>
+                <span class="escape-hint"><kbd>ESC</kbd> to close</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <!-- Access Screen -->
+        <div id="accessScreen" class="access-screen">
+            <h1>Website Portal</h1>
+            <p class="subtitle">Enter your access code</p>
+            <input type="password" id="codeInput" class="code-input" placeholder="········">
+            <br>
+            <button onclick="checkCode()" class="btn">Enter</button>
+            <p id="errorMsg" class="error-msg"></p>
+        </div>
+
+        <!-- Main Screen -->
+        <div id="gamesScreen" class="games-screen hidden">
+
+            <!-- Announcements Bar -->
+            <div id="announcementBar" class="announcement-bar">
+                <span id="announcementText">
+                    Minecraft worlds are about 8× larger than Earth's surface area if you generated the full map.
+                </span>
+            </div>
+
+            <div class="header">
+                <div class="header-left">
+                    <h1>Library</h1>
+                </div>
+                <div style="display:flex;align-items:center;gap:10px;">
+                    <button onclick="openForm()" class="btn-suggest">Suggest a Game</button>
+                    <button onclick="logout()" class="btn-logout">Logout</button>
+                </div>
+            </div>
+
+            <div class="search-container">
+                <input type="text" id="searchInput" class="search-input" placeholder="Search games…" oninput="filterGames()">
+                <span class="search-icon">🔍</span>
+            </div>
+
+            <div id="gamesList" class="games-grid"></div>
+            <p class="no-games hidden" id="noGames">No items found</p>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+    <script>
+        /* ── Form Modal ── */
+        function openForm() {
+            document.getElementById('formOverlay').classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+        function closeForm() {
+            document.getElementById('formOverlay').classList.remove('active');
+            document.body.style.overflow = '';
+        }
+        function handleOverlayClick(e) {
+            if (e.target === document.getElementById('formOverlay')) closeForm();
+        }
+        document.addEventListener('keydown', e => { if (e.key === 'Escape') closeForm(); });
+
+        /* ── Rising Ember Particles ── */
+        (function () {
+            const container = document.querySelector('.snowflakes');
+            const colors = [
+                '#e07c2a', '#f0a830', '#c2440a',
+                '#d4506a', '#e08040', '#f0c060',
+                '#b03060', '#904090'
+            ];
+            const count = 22;
+
+            for (let i = 0; i < count; i++) {
+                const el = document.createElement('div');
+                el.className = 'snowflake';
+
+                const size   = 2 + Math.random() * 5;
+                const color  = colors[Math.floor(Math.random() * colors.length)];
+                const left   = Math.random() * 100;
+                const dur    = 6 + Math.random() * 12;
+                const delay  = -(Math.random() * 20);
+                const drift  = (Math.random() - 0.5) * 120;
+                const bottom = Math.random() * 30; // start near bottom
+
+                el.style.cssText = `
+                    width: ${size}px;
+                    height: ${size}px;
+                    background: ${color};
+                    box-shadow: 0 0 ${size * 2}px ${color};
+                    left: ${left}%;
+                    bottom: ${bottom}%;
+                    top: auto;
+                    --drift: ${drift}px;
+                    animation-duration: ${dur}s;
+                    animation-delay: ${delay}s;
+                `;
+                container.appendChild(el);
+            }
+        })();
+    </script>
+</body>
+</html>

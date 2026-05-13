@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Dev Gam</title>
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <main id="app">
+    <header class="site-header">
+      <h1 class="logo">Dev Gam</h1>
+      <p class="subtitle">Enter the code to access the game vault</p>
+    </header>
+
+    <section id="auth" class="card center">
+      <label for="codeInput" class="label">Access code</label>
+      <input id="codeInput" type="password" placeholder="Enter code" autocomplete="off">
+      <div class="row">
+        <button id="unlockBtn" class="btn primary">Unlock</button>
+        <button id="clearBtn" class="btn ghost">Clear</button>
+      </div>
+      <p id="authMsg" class="muted"></p>
+    </section>
+
+    <section id="gamesSection" class="card hidden">
+      <div class="games-header">
+        <h2>Games</h2>
+        <button id="logoutBtn" class="btn small">Log out</button>
+      </div>
+      <div id="gamesContainer" class="games-grid">
+        <!-- Buttons generated here -->
+      </div>
+      <p id="error" class="error small hidden"></p>
+    </section>
+
+    <footer class="footer muted">
+      Simple • Dark • Fast
+    </footer>
+  </main>
+
+  <script src="js/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,560 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: #000;
+    color: #fff;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    overflow: visible;
+}
+
+.container {
+    width: 100%;
+    max-width: 1400px;
+}
+
+.access-screen {
+    background: #0a0a0a;
+    border: 1px solid #222;
+    border-radius: 8px;
+    padding: 60px 40px;
+    text-align: center;
+    animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.incognito-icon {
+    margin-bottom: 30px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.incognito-icon img {
+    width: 120px;
+    height: 120px;
+    filter: invert(1) brightness(1.2);
+}
+
+.access-screen h1 {
+    color: #fff;
+    margin-bottom: 10px;
+    font-size: 2em;
+    font-weight: 600;
+}
+
+.subtitle {
+    color: #888;
+    margin-bottom: 30px;
+    font-size: 0.95em;
+}
+
+.code-input {
+    width: 100%;
+    max-width: 300px;
+    padding: 12px 16px;
+    font-size: 15px;
+    background: #111;
+    border: 1px solid #333;
+    border-radius: 6px;
+    color: #fff;
+    text-align: center;
+    margin-bottom: 20px;
+    transition: all 0.2s;
+}
+
+.code-input:focus {
+    outline: none;
+    border-color: #555;
+    background: #151515;
+}
+
+.btn {
+    padding: 12px 32px;
+    font-size: 15px;
+    font-weight: 500;
+    background: #fff;
+    color: #000;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn:hover {
+    background: #e0e0e0;
+    transform: translateY(-1px);
+}
+
+.btn:active {
+    transform: translateY(0);
+}
+
+.error-msg {
+    color: #ff4444;
+    margin-top: 15px;
+    min-height: 20px;
+    font-size: 0.9em;
+}
+
+.games-screen {
+    background: #0a0a0a;
+    border: 1px solid #222;
+    border-radius: 8px;
+    padding: 30px;
+    animation: fadeIn 0.3s ease;
+    position: relative;
+    overflow: visible;
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+    position: relative;
+    z-index: 10;
+}
+
+.header-left {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.header h1 {
+    color: #fff;
+    font-size: 1.8em;
+    font-weight: 600;
+    transition: all 0.5s ease;
+    animation: titleGetThrown 18s ease-in-out infinite;
+}
+
+@keyframes titleGetThrown {
+    0%, 15% {
+        transform: translate(0, 0) rotate(0deg);
+    }
+    20% {
+        transform: translate(250px, -300px) rotate(540deg) scale(2);
+    }
+    25% {
+        transform: translate(-300px, 200px) rotate(1080deg) scale(0.5);
+    }
+    30% {
+        transform: translate(400px, -100px) rotate(1620deg) scale(1.5);
+    }
+    35%, 100% {
+        transform: translate(0, 0) rotate(0deg) scale(1);
+    }
+}
+
+.btn-logout {
+    padding: 8px 20px;
+    background: #111;
+    color: #fff;
+    border: 1px solid #333;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 14px;
+    font-weight: 500;
+    position: relative;
+    animation: logoutGetThrown 22s ease-in-out infinite;
+}
+
+@keyframes logoutGetThrown {
+    0%, 25% {
+        transform: translate(0, 0) rotate(0deg);
+    }
+    30% {
+        transform: translate(-300px, 250px) rotate(720deg) scale(2);
+    }
+    35% {
+        transform: translate(350px, -300px) rotate(1440deg) scale(0.4);
+    }
+    40% {
+        transform: translate(-150px, -200px) rotate(2160deg) scale(1.3);
+    }
+    45%, 100% {
+        transform: translate(0, 0) rotate(0deg) scale(1);
+    }
+}
+
+.btn-logout:hover {
+    background: #1a1a1a;
+    border-color: #444;
+}
+
+.search-container {
+    margin-bottom: 25px;
+    position: relative;
+    z-index: 10;
+    animation: searchGetThrown 20s ease-in-out infinite;
+}
+
+@keyframes searchGetThrown {
+    0%, 20% {
+        transform: translate(0, 0) rotate(0deg);
+    }
+    25% {
+        transform: translate(-350px, -250px) rotate(-360deg) scale(1.5);
+    }
+    30% {
+        transform: translate(400px, 300px) rotate(-720deg) scale(0.6);
+    }
+    35% {
+        transform: translate(-200px, 150px) rotate(-1080deg) scale(1.2);
+    }
+    40%, 100% {
+        transform: translate(0, 0) rotate(0deg) scale(1);
+    }
+}
+
+.search-input {
+    width: 100%;
+    padding: 12px 45px 12px 16px;
+    font-size: 15px;
+    background: #111;
+    border: 1px solid #333;
+    border-radius: 6px;
+    color: #fff;
+    transition: all 0.2s;
+}
+
+.search-input:focus {
+    outline: none;
+    border-color: #555;
+    background: #151515;
+}
+
+.search-input::placeholder {
+    color: #555;
+}
+
+.search-icon {
+    position: absolute;
+    right: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #555;
+    font-size: 16px;
+    pointer-events: none;
+}
+
+.games-grid {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 15px;
+    perspective: 1000px;
+}
+
+/* GAME CARDS */
+.game-card {
+    background: linear-gradient(135deg, #1a1a1a 0%, #111 100%);
+    border: 1px solid #222;
+    border-radius: 8px;
+    padding: 20px 15px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 1.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    animation: slideUp 0.3s ease backwards;
+    position: relative;
+    overflow: visible;
+}
+
+/* Cards forming giant stickman - head */
+.game-card.forming-head {
+    background: #fff !important;
+    border-radius: 50% !important;
+    transform: translate(0, -300px) scale(2) !important;
+    z-index: 200 !important;
+    box-shadow: 0 0 40px rgba(255, 255, 255, 0.8) !important;
+}
+
+/* Cards forming giant stickman - body */
+.game-card.forming-body {
+    background: #fff !important;
+    border-radius: 4px !important;
+    width: 30px !important;
+    height: 200px !important;
+    transform: translate(0, -50px) scale(1) !important;
+    z-index: 199 !important;
+    box-shadow: 0 0 30px rgba(255, 255, 255, 0.6) !important;
+}
+
+/* Cards forming giant stickman - left arm */
+.game-card.forming-arm-left {
+    background: #fff !important;
+    border-radius: 4px !important;
+    width: 25px !important;
+    height: 180px !important;
+    transform: translate(-200px, -100px) rotate(-45deg) scale(1) !important;
+    transform-origin: top center !important;
+    z-index: 198 !important;
+    box-shadow: 0 0 30px rgba(255, 255, 255, 0.6) !important;
+    animation: giantArmLeftGrab 4s ease-in-out infinite !important;
+}
+
+@keyframes giantArmLeftGrab {
+    0%, 100% { transform: translate(-200px, -100px) rotate(-45deg) scale(1); }
+    25% { transform: translate(-300px, -150px) rotate(-90deg) scale(1.3); }
+    50% { transform: translate(-250px, -120px) rotate(-60deg) scale(1.1); }
+    75% { transform: translate(-320px, -180px) rotate(-110deg) scale(1.4); }
+}
+
+/* Cards forming giant stickman - right arm */
+.game-card.forming-arm-right {
+    background: #fff !important;
+    border-radius: 4px !important;
+    width: 25px !important;
+    height: 180px !important;
+    transform: translate(200px, -100px) rotate(45deg) scale(1) !important;
+    transform-origin: top center !important;
+    z-index: 198 !important;
+    box-shadow: 0 0 30px rgba(255, 255, 255, 0.6) !important;
+    animation: giantArmRightGrab 4s ease-in-out infinite !important;
+}
+
+@keyframes giantArmRightGrab {
+    0%, 100% { transform: translate(200px, -100px) rotate(45deg) scale(1); }
+    25% { transform: translate(300px, -150px) rotate(90deg) scale(1.3); }
+    50% { transform: translate(250px, -120px) rotate(60deg) scale(1.1); }
+    75% { transform: translate(320px, -180px) rotate(110deg) scale(1.4); }
+}
+
+/* Cards forming giant stickman - left leg */
+.game-card.forming-leg-left {
+    background: #fff !important;
+    border-radius: 4px !important;
+    width: 25px !important;
+    height: 200px !important;
+    transform: translate(-80px, 150px) rotate(-15deg) scale(1) !important;
+    z-index: 197 !important;
+    box-shadow: 0 0 30px rgba(255, 255, 255, 0.6) !important;
+}
+
+/* Cards forming giant stickman - right leg */
+.game-card.forming-leg-right {
+    background: #fff !important;
+    border-radius: 4px !important;
+    width: 25px !important;
+    height: 200px !important;
+    transform: translate(80px, 150px) rotate(15deg) scale(1) !important;
+    z-index: 197 !important;
+    box-shadow: 0 0 30px rgba(255, 255, 255, 0.6) !important;
+}
+
+/* Hide text content when forming stickman */
+.game-card.forming-head h3,
+.game-card.forming-head p,
+.game-card.forming-body h3,
+.game-card.forming-body p,
+.game-card.forming-arm-left h3,
+.game-card.forming-arm-left p,
+.game-card.forming-arm-right h3,
+.game-card.forming-arm-right p,
+.game-card.forming-leg-left h3,
+.game-card.forming-leg-left p,
+.game-card.forming-leg-right h3,
+.game-card.forming-leg-right p {
+    opacity: 0 !important;
+}
+
+/* Remaining cards fade out when stickman forms */
+.game-card.forming-hidden {
+    opacity: 0 !important;
+    transform: scale(0) !important;
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.game-card:hover {
+    background: linear-gradient(135deg, #2a2a2a 0%, #1a1a1a 100%);
+    border-color: #444;
+    transform: translateY(-4px);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.4);
+    animation-play-state: paused;
+}
+
+/* Shimmer effect on card text */
+.game-card h3 {
+    color: #fff;
+    font-size: 1em;
+    margin-bottom: 6px;
+    font-weight: 500;
+    transition: all 0.3s;
+    position: relative;
+}
+
+.game-card:hover h3 {
+    transform: scale(1.05);
+}
+
+.game-card p {
+    color: #666;
+    font-size: 0.85em;
+    transition: color 0.3s;
+}
+
+.game-card:hover p {
+    color: #aaa;
+}
+
+.hidden {
+    display: none;
+}
+
+.no-games {
+    text-align: center;
+    color: #555;
+    padding: 60px;
+    font-size: 1em;
+}
+
+@media (max-width: 1200px) {
+    .games-grid {
+        grid-template-columns: repeat(4, 1fr);
+    }
+}
+
+@media (max-width: 900px) {
+    .games-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+@media (max-width: 600px) {
+    .access-screen, .games-screen {
+        padding: 30px 20px;
+    }
+    
+    .incognito-icon img {
+        width: 80px;
+        height: 80px;
+    }
+    
+    .access-screen h1 {
+        font-size: 1.5em;
+    }
+    
+    .header h1 {
+        font-size: 1.3em;
+    }
+    
+    .disco-ball {
+        width: 35px;
+        height: 35px;
+    }
+    
+    .games-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+.announcement-bar {
+    background: #062e06;
+    border: 2px solid #1b7d1b;
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 28px;
+    font-size: 1.4em;
+    font-weight: 600;
+    color: #8bff8b;
+    text-align: center;
+    letter-spacing: 0.5px;
+    animation: fadeIn 0.3s ease, spinSuperFast 0.5s linear infinite, getThrown 15s ease-in-out infinite;
+    box-shadow: 0 0 14px rgba(0, 255, 0, 0.12);
+    position: relative;
+    z-index: 10;
+}
+
+@keyframes spinSuperFast {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+@keyframes getThrown {
+    0%, 10% {
+        transform: translate(0, 0) rotate(0deg);
+    }
+    15% {
+        transform: translate(-200px, -400px) rotate(-720deg) scale(0.5);
+    }
+    20% {
+        transform: translate(300px, -500px) rotate(-1080deg) scale(0.3);
+    }
+    25% {
+        transform: translate(-400px, 200px) rotate(-1440deg) scale(0.8);
+    }
+    30%, 100% {
+        transform: translate(0, 0) rotate(0deg) scale(1);
+    }
+}
+
+.announcement-bar::before {
+    content: "📢 ";
+}
+
+.announcement-bar.highlight {
+    background: #074807;
+    border-color: #26c126;
+    box-shadow: 0 0 18px rgba(0, 255, 0, 0.16);
+}
+
+/* Snowflake Effect */
+.snowflakes {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 9999;
+    overflow: hidden;
+}
+
+.snowflake {
+    position: absolute;
+    top: -10px;
+    background: white;
+    border-radius: 50%;
+    pointer-events: none;
+}
+
+/* Being grabbed effect - elements glow when grabbed by giant stickman */
+.being-grabbed {
+    box-shadow: 0 0 50px rgba(255, 255, 0, 1) !important;
+    filter: brightness(1.5) contrast(1.2);
+    z-index: 300 !important;
+}
