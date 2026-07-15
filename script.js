@@ -303,7 +303,7 @@ function openGame(gameName, displayName) {
 }
 
 function blockedPage(sid) {
-    return `<!DOCTYPE html><html><head><title>Access Denied</title><style>body{margin:0;background:linear-gradient(168deg,#87CEEB,#FFD59E,#FFAC6A);font-family:sans-serif;display:flex;align-items:center;justify-content:center;height:100vh;text-align:center;}.box{background:rgba(255,255,255,.30);backdrop-filter:blur(20px);border:1.5px solid rgba(255,255,255,.55);border-radius:24px;padding:56px 48px;max-width:460px;}h1{color:#FF6B6B;font-size:1.9em;margin-bottom:14px;}p{color:#1A2A3A;opacity:.72;}</style></head><body><div class="box"><h1>Access Denied</h1><p>This session has been blocked.</p></div></body></html>`;
+    return `<!DOCTYPE html><html><head><title>Access Denied</title><style>body{margin:0;background:linear-gradient(168deg,#F6DE9C,#EDA85C,#C96A38);font-family:sans-serif;display:flex;align-items:center;justify-content:center;height:100vh;text-align:center;}.box{background:rgba(255,250,240,.32);backdrop-filter:blur(20px);border:1.5px solid rgba(255,235,205,.60);border-radius:24px;padding:56px 48px;max-width:460px;}h1{color:#C1432A;font-size:1.9em;margin-bottom:14px;}p{color:#3A2A1D;opacity:.72;}</style></head><body><div class="box"><h1>Access Denied</h1><p>This session has been blocked.</p></div></body></html>`;
 }
 
 function gamePage(name, displayName, url, sid) {
@@ -323,7 +323,7 @@ html,body{width:100%;height:100%;overflow:hidden;background:#000;}
 /* Overlay fades out via opacity transition, then removed from layout */
 #overlay{
     position:fixed;inset:0;z-index:100;
-    background:linear-gradient(168deg,#5FB8E8 0%,#87CEEB 22%,#B8E4FF 42%,#FFD59E 68%,#FFAC6A 85%,#F5895A 100%);
+    background:linear-gradient(168deg,#F6DE9C 0%,#F3C578 20%,#EDA85C 40%,#E28849 62%,#C96A38 82%,#8A4225 100%);
     display:flex;flex-direction:column;align-items:center;justify-content:center;
     opacity:1;pointer-events:auto;
     transition:opacity .5s ease;
@@ -331,49 +331,65 @@ html,body{width:100%;height:100%;overflow:hidden;background:#000;}
 #overlay.fading{opacity:0;pointer-events:none;}
 
 /* sky dressing */
-.ov-cloud{position:absolute;background:rgba(255,255,255,.82);border-radius:50px;filter:blur(1.5px);pointer-events:none;}
-.ov-cloud::before,.ov-cloud::after{content:'';position:absolute;background:rgba(255,255,255,.82);border-radius:50%;}
+.ov-cloud{position:absolute;background:rgba(255,248,235,.82);border-radius:50px;filter:blur(1.5px);pointer-events:none;}
+.ov-cloud::before,.ov-cloud::after{content:'';position:absolute;background:rgba(255,248,235,.82);border-radius:50%;}
 .cc1{width:130px;height:40px;top:52px;left:-150px;animation:drift 30s linear infinite;}
 .cc1::before{width:72px;height:56px;top:-30px;left:20px;}.cc1::after{width:52px;height:44px;top:-22px;left:60px;}
 .cc2{width:85px;height:26px;top:120px;left:-100px;animation:drift 42s linear infinite 7s;opacity:.7;}
 .cc2::before{width:50px;height:38px;top:-20px;left:13px;}.cc2::after{width:36px;height:30px;top:-15px;left:38px;}
 @keyframes drift{from{left:-200px;}to{left:110vw;}}
 .ov-sun{position:absolute;top:32px;right:12%;width:80px;height:80px;
-    background:radial-gradient(circle,#FFF176 20%,#FFD740 50%,#FFB830 75%,transparent 100%);
-    border-radius:50%;box-shadow:0 0 50px 16px rgba(255,200,60,.32);
+    background:radial-gradient(circle,#FFF3C4 20%,#F5C860 50%,#E8A23D 75%,transparent 100%);
+    border-radius:50%;box-shadow:0 0 50px 16px rgba(232,162,61,.32);
     animation:sp 7s ease-in-out infinite;pointer-events:none;}
 @keyframes sp{0%,100%{transform:scale(1);}50%{transform:scale(1.04);}}
 .ov-waves{position:absolute;bottom:0;left:0;width:100%;height:100px;pointer-events:none;overflow:hidden;}
 .ov-wave{position:absolute;bottom:0;left:-25%;width:150%;height:100%;
-    background:linear-gradient(180deg,rgba(0,147,196,.48) 0%,rgba(0,80,130,.70) 100%);
+    background:linear-gradient(180deg,rgba(196,116,42,.50) 0%,rgba(112,58,20,.72) 100%);
     border-radius:55% 45% 0 0/70px 50px 0 0;}
 .ow1{animation:wv1 8s ease-in-out infinite;}
-.ow2{background:linear-gradient(180deg,rgba(0,190,220,.28) 0%,rgba(0,110,160,.46) 100%);animation:wv2 11s ease-in-out infinite;}
-.ow3{background:rgba(255,255,255,.12);border-radius:42% 58% 0 0/50px 70px 0 0;animation:wv1 15s ease-in-out infinite reverse;}
+.ow2{background:linear-gradient(180deg,rgba(224,158,64,.30) 0%,rgba(150,88,32,.48) 100%);animation:wv2 11s ease-in-out infinite;}
+.ow3{background:rgba(255,244,222,.14);border-radius:42% 58% 0 0/50px 70px 0 0;animation:wv1 15s ease-in-out infinite reverse;}
 @keyframes wv1{0%,100%{transform:translateX(0) scaleY(1);}50%{transform:translateX(-6%) scaleY(1.08);}}
 @keyframes wv2{0%,100%{transform:translateX(-4%) scaleY(1);}50%{transform:translateX(4%) scaleY(.93);}}
 
 .lcard{
-    background:rgba(255,255,255,.26);
-    backdrop-filter:blur(24px) saturate(1.6);-webkit-backdrop-filter:blur(24px) saturate(1.6);
-    border:1.5px solid rgba(255,255,255,.60);border-radius:28px;
+    background:rgba(255,250,240,.32);
+    backdrop-filter:blur(28px) saturate(1.7) brightness(1.05);-webkit-backdrop-filter:blur(28px) saturate(1.7) brightness(1.05);
+    border:1.5px solid rgba(255,235,205,.65);border-radius:30px;
     padding:40px 46px 36px;text-align:center;
     width:90%;max-width:400px;
-    box-shadow:0 24px 64px rgba(0,60,120,.18),0 1.5px 0 rgba(255,255,255,.55) inset;
-    position:relative;z-index:2;
+    box-shadow:0 28px 70px -14px rgba(110,55,10,.30),0 1.5px 0 rgba(255,250,240,.60) inset,0 -24px 34px -30px rgba(232,162,61,.38) inset;
+    position:relative;z-index:2;overflow:hidden;
+    animation:cardPop .5s cubic-bezier(.16,1,.3,1) both;
 }
-.ring{width:48px;height:48px;border:4px solid rgba(0,147,196,.18);
-    border-top-color:#0093C4;border-radius:50%;
-    animation:spin .75s linear infinite;margin:0 auto 16px;}
+@keyframes cardPop{from{opacity:0;transform:scale(.90) translateY(14px);filter:blur(8px);}to{opacity:1;transform:scale(1) translateY(0);filter:blur(0);}}
+.lcard::before{content:'';position:absolute;inset:0;pointer-events:none;
+    background:linear-gradient(128deg, rgba(255,255,255,.55) 0%, rgba(255,255,255,0) 30%, rgba(255,255,255,0) 70%, rgba(255,255,255,.18) 100%);
+    mix-blend-mode:overlay;}
+.ring{
+    width:46px;height:46px;margin:0 auto 16px;border-radius:50%;
+    background:conic-gradient(from 0deg,#B5651D,#E8A23D,#C1432A,#B5651D);
+    -webkit-mask:radial-gradient(farthest-side,transparent calc(100% - 4px),#000 calc(100% - 4px));
+            mask:radial-gradient(farthest-side,transparent calc(100% - 4px),#000 calc(100% - 4px));
+    animation:spin .85s linear infinite;
+    filter:drop-shadow(0 0 8px rgba(232,162,61,.45));
+}
 @keyframes spin{to{transform:rotate(360deg);}}
-.lcard h1{font-family:'Playfair Display',serif;font-size:1.5em;color:#0F1E2E;margin-bottom:6px;}
-.lcard .sub{color:#5A7A96;font-size:.84em;margin-bottom:22px;font-weight:300;}
-.pwrap{background:rgba(255,255,255,.38);border:1.5px solid rgba(255,255,255,.65);border-radius:13px;padding:14px 18px;}
-.plabel{font-size:10px;text-transform:uppercase;letter-spacing:1.5px;color:#5A7A96;margin-bottom:7px;text-align:left;font-weight:600;}
-.pbg{width:100%;height:8px;background:rgba(0,0,0,.08);border-radius:4px;overflow:hidden;}
-.pfill{height:100%;background:linear-gradient(90deg,#0093C4,#00C9A7);border-radius:4px;width:0%;
-    transition:width .25s ease;box-shadow:0 0 10px rgba(0,147,196,.40);}
-.ptxt{font-family:'Courier New',monospace;font-size:12px;color:#0093C4;margin-top:8px;text-align:left;font-weight:600;}
+.lcard h1{font-family:'Playfair Display',serif;font-size:1.5em;color:#3A2A1D;margin-bottom:6px;position:relative;}
+.lcard .sub{color:#967C64;font-size:.84em;margin-bottom:22px;font-weight:300;position:relative;}
+.pwrap{background:rgba(255,250,240,.44);border:1.5px solid rgba(255,235,205,.70);border-radius:14px;padding:14px 18px;position:relative;}
+.plabel{font-size:10px;text-transform:uppercase;letter-spacing:1.5px;color:#967C64;margin-bottom:7px;text-align:left;font-weight:600;}
+.pbg{width:100%;height:8px;background:rgba(90,45,10,.10);border-radius:4px;overflow:hidden;}
+.pfill{height:100%;background:linear-gradient(90deg,#B5651D,#E8A23D);border-radius:4px;width:0%;
+    transition:width .3s cubic-bezier(.16,1,.3,1);box-shadow:0 0 10px rgba(181,101,29,.40);
+    position:relative;overflow:hidden;}
+.pfill::after{content:'';position:absolute;inset:0;
+    background:linear-gradient(90deg,transparent,rgba(255,255,255,.55),transparent);
+    background-size:60px 100%;background-repeat:no-repeat;
+    animation:shimmer 1.1s linear infinite;}
+@keyframes shimmer{0%{background-position:-60px 0;}100%{background-position:calc(100% + 60px) 0;}}
+.ptxt{font-family:'Courier New',monospace;font-size:12px;color:#B5651D;margin-top:8px;text-align:left;font-weight:600;}
 .sess{position:fixed;bottom:7px;right:10px;opacity:.12;font-size:10px;z-index:200;color:#333;user-select:none;}
 </style></head><body>
 
@@ -436,7 +452,7 @@ html,body{width:100%;height:100%;overflow:hidden;background:#000;}
         if (!b) return;
         try {
             if (JSON.parse(b).find(function(s){ return s.id === '${sid}'; })){
-                document.body.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100vh;background:linear-gradient(168deg,#87CEEB,#FFD59E);font-family:sans-serif;text-align:center"><div style="background:rgba(255,255,255,.3);backdrop-filter:blur(20px);border-radius:24px;padding:56px 48px;"><h1 style="color:#FF6B6B;margin-bottom:12px;">Session Terminated</h1><p style="color:#1A2A3A;opacity:.7;">Blocked by administrator.</p></div></div>';
+                document.body.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100vh;background:linear-gradient(168deg,#F6DE9C,#E28849);font-family:sans-serif;text-align:center"><div style="background:rgba(255,250,240,.32);backdrop-filter:blur(20px);border-radius:24px;padding:56px 48px;"><h1 style="color:#C1432A;margin-bottom:12px;">Session Terminated</h1><p style="color:#3A2A1D;opacity:.7;">Blocked by administrator.</p></div></div>';
             }
         } catch(e){}
     }, 2000);
