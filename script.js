@@ -156,13 +156,13 @@ async function loadGames() {
         document.getElementById('gamesList').innerHTML = `
             <div class="load-placeholder" style="grid-column:1/-1">
                 <div style="font-size:2em;margin-bottom:10px">⚠️</div>
-                <strong style="color:var(--coral)">Failed to load games</strong>
-                <div style="color:var(--coral);opacity:.8;margin-top:6px;font-size:.88em">${err.message}</div>
-                <div style="margin-top:12px;color:var(--text-soft);font-size:.8em;line-height:1.6">
+                <strong style="color:var(--rust)">Failed to load games</strong>
+                <div style="color:var(--rust);opacity:.8;margin-top:6px;font-size:.88em">${err.message}</div>
+                <div style="margin-top:12px;color:var(--ink-soft);font-size:.8em;line-height:1.6">
                     Make sure <code style="background:rgba(0,0,0,.06);padding:1px 6px;border-radius:4px">list.json</code>
                     is in the root of your Vercel project.
                 </div>
-                <button onclick="loadGames()" style="margin-top:16px;padding:9px 24px;background:var(--ocean);color:#fff;border:none;border-radius:10px;cursor:pointer;font-family:inherit;font-weight:600;font-size:.88em;box-shadow:0 4px 14px rgba(0,147,196,.35);">
+                <button onclick="loadGames()" style="margin-top:16px;padding:9px 24px;background:var(--amber-deep);color:#fff;border:none;border-radius:999px;cursor:pointer;font-family:inherit;font-weight:600;font-size:.88em;box-shadow:0 4px 14px rgba(181,101,29,.35);transition:transform .3s cubic-bezier(.34,1.56,.64,1);">
                     Retry
                 </button>
             </div>`;
@@ -233,17 +233,148 @@ function renderAllGames() {
     rest.forEach((game, i) => list.appendChild(makeCard(game, i, false)));
 }
 
+/* ── Cover art: try SteamGridDB first (best coverage for games),
+   then CheapShark/Steam CDN art for anything on Steam,
+   then Wikipedia's pageimages API (keyless, CORS-open) as a last resort,
+   cache results 7 days, and if nothing has anything, show a
+   styled "no image found" tile instead of guessing. ── */
+const ART_CACHE_TTL = 7 * 24 * 60 * 60 * 1000;
+const STEAMGRIDDB_KEY = '7a0617fcdbc2fc182ecbbc074abbbcaf';
+
+async function fetchFromSteamGridDB(title) {
+    try {
+        const searchRes = await fetch(
+            `https://www.steamgriddb.com/api/v2/search/autocomplete/${encodeURIComponent(title)}`,
+            { headers: { 'Authorization': `Bearer ${STEAMGRIDDB_KEY}` } }
+        );
+        if (!searchRes.ok) return null;
+        const searchData = await searchRes.json();
+        const game = searchData && searchData.data && searchData.data[0];
+        if (!game) return null;
+
+        const gridRes = await fetch(
+            `https://www.steamgriddb.com/api/v2/grids/game/${game.id}?dimensions=600x900`,
+            { headers: { 'Authorization': `Bearer ${STEAMGRIDDB_KEY}` } }
+        );
+        if (!gridRes.ok) return null;
+        const gridData = await gridRes.json();
+        const grid = gridData && gridData.data && gridData.data[0];
+        return (grid && grid.url) || null;
+    } catch { return null; }
+}
+
+async function fetchFromCheapShark(title) {
+    try {
+        const res = await fetch(`https://www.cheapshark.com/api/1.0/games?title=${encodeURIComponent(title)}&limit=1`);
+        if (!res.ok) return null;
+        const data = await res.json();
+        const game = Array.isArray(data) ? data[0] : null;
+        if (!game) return null;
+        // Steam's own portrait grid art — matches our tile aspect ratio well
+        if (game.steamAppID) return `https://cdn.cloudflare.steamstatic.com/steam/apps/${game.steamAppID}/library_600x900.jpg`;
+        return game.thumb || null;
+    } catch { return null; }
+}
+
+async function fetchFromWikipedia(title) {
+    try {
+        const q = encodeURIComponent(title + ' video game');
+        const res = await fetch(
+            `https://en.wikipedia.org/w/api.php?action=query&generator=search&gsrsearch=${q}&gsrlimit=1&prop=pageimages&piprop=original&format=json&origin=*`
+        );
+        if (!res.ok) return null;
+        const data = await res.json();
+        const pages = data && data.query && data.query.pages;
+        if (!pages) return null;
+        const page = Object.values(pages)[0];
+        return (page && page.original && page.original.source) || null;
+    } catch { return null; }
+}
+
+async function fetchCoverArt(title) {
+    const cacheKey = 'artCache:' + title.toLowerCase();
+    try {
+        const cached = JSON.parse(localStorage.getItem(cacheKey) || 'null');
+        if (cached && (Date.now() - cached.ts) < ART_CACHE_TTL) return cached.url;
+    } catch {}
+
+    let url = await fetchFromSteamGridDB(title);
+    if (!url) url = await fetchFromCheapShark(title);
+    if (!url) url = await fetchFromWikipedia(title);
+
+    try { localStorage.setItem(cacheKey, JSON.stringify({ url, ts: Date.now() })); } catch {}
+    return url;
+}
+
+function markNoImage(artEl) {
+    if (!artEl || !artEl.isConnected) return;
+    artEl.classList.remove('loading');
+    artEl.classList.add('no-image');
+    const mono = artEl.querySelector('.mono');
+    if (mono) mono.remove();
+    artEl.insertAdjacentHTML('afterbegin', `<div class="ni-wrap"><span class="ni-icon">🖼️</span><span class="ni-text">No image found</span></div>`);
+}
+
+function loadCoverArt(artEl, title) {
+    fetchCoverArt(title).then(url => {
+        if (!artEl || !artEl.isConnected) return;
+        if (!url) { markNoImage(artEl); return; }
+        const img = new Image();
+        img.onload = () => {
+            if (!artEl.isConnected) return;
+            artEl.classList.remove('loading');
+            artEl.classList.add('has-image');
+            const mono = artEl.querySelector('.mono');
+            if (mono) mono.remove();
+            artEl.insertAdjacentHTML('afterbegin', `<img src="${url}" alt="${title} cover art" loading="lazy">`);
+        };
+        img.onerror = () => markNoImage(artEl);
+        img.src = url;
+    }).catch(() => markNoImage(artEl));
+}
+
+/* ── Procedural placeholder art (shown while loading, and behind the
+   "no image found" state) ── */
+const ART_PALETTES = [
+    ['#E8A23D', '#B5651D', 132],
+    ['#C1432A', '#7A2A18', 118],
+    ['#D9752E', '#8A4225', 145],
+    ['#7C8F4A', '#4F5E2E', 128],
+    ['#B5651D', '#3A2A1D', 140],
+    ['#E0824A', '#C1432A', 110],
+    ['#5C7134', '#2E3A1B', 150],
+    ['#F0B93D', '#C1432A', 125],
+    ['#8A4225', '#3A2A1D', 135],
+];
+function hashStr(s) {
+    let h = 0;
+    for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) | 0;
+    return Math.abs(h);
+}
+function artStyle(name) {
+    const [c1, c2, ang] = ART_PALETTES[hashStr(name) % ART_PALETTES.length];
+    return `background:repeating-linear-gradient(${ang}deg, rgba(255,255,255,.07) 0 2px, transparent 2px 16px), linear-gradient(${ang}deg, ${c1}, ${c2});`;
+}
+
 /* ── Make a card DOM node ── */
 function makeCard(game, index, isFeatured) {
     const card = document.createElement('div');
-    card.className = 'game-card' + (isFeatured ? ' featured-card' : '');
-    card.style.animationDelay = `${Math.min(index * 0.03, 0.6)}s`;
+    card.className = 'tile' + (isFeatured ? ' tile-featured' : '');
+    card.style.transitionDelay = `${Math.min(index * 0.03, 0.5)}s`;
     card.onclick = () => openGame(game.name, game.display);
+    const title = game.display || game.name || '?';
+    const letter = title.trim().charAt(0).toUpperCase();
     card.innerHTML = `
-        ${isFeatured ? '<div class="featured-badge">Hot</div>' : ''}
-        ${isFeatured && index < 3 ? `<div class="rank-badge">#${index + 1}</div>` : ''}
-        <h3>${game.display}</h3>
-        <p>Click to play</p>`;
+        <div class="art loading" style="${artStyle(title)}">
+            <span class="mono">${letter}</span>
+            ${isFeatured ? '<div class="featured-badge">Hot</div>' : ''}
+            ${isFeatured && index < 3 ? `<div class="rank-badge">#${index + 1}</div>` : ''}
+        </div>
+        <div class="tile-scrim">
+            <h3>${title}</h3>
+            <p>Click to play</p>
+        </div>`;
+    loadCoverArt(card.querySelector('.art'), title);
     return card;
 }
 
@@ -252,7 +383,7 @@ function makeCard(game, index, isFeatured) {
 ══════════════════════════════════════════════════════ */
 function filterGames() {
     const q             = document.getElementById('searchInput').value.trim().toLowerCase();
-    const featuredPanel = document.getElementById('featuredPanel');
+    const featuredPanel = document.getElementById('featured');
     const allLabel      = document.getElementById('allLabel');
     const noGames       = document.getElementById('noGames');
     const list          = document.getElementById('gamesList');
@@ -479,17 +610,8 @@ function initProtection() {
     // 3 — No drag
     document.addEventListener('dragstart', e => e.preventDefault());
 
-    // 4 — DevTools timing detection
-    (function devLoop(){
-        setInterval(() => {
-            const t = performance.now();
-            // eslint-disable-next-line no-debugger
-            debugger;
-            if (performance.now() - t > 160){
-                document.body.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100vh;background:#000;color:#fff;font-family:sans-serif;text-align:center;flex-direction:column;gap:16px;"><div style="font-size:3em">🚫</div><div style="font-size:1.3em;font-weight:600">Developer tools are not allowed.</div><div style="opacity:.4;font-size:.85em">Close DevTools and refresh.</div></div>';
-            }
-        }, 1000);
-    })();
+    // 4 — (removed: devtools timing-detection used to wipe the whole
+    // page on open, which made real debugging impossible)
 
     // 5 — Console poison
     const noop = () => {};
