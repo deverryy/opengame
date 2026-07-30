@@ -152,13 +152,16 @@ Bug reports and feature requests are appreciated.
 
 
 ## ⚖️ Trademark and Naming Policy
-While the source code of this project is open-source under the MIT License, the name "OpenGame" is protected. 
+While the source code of this project is open-source under the MIT License, the name "OpenGame" and its official branding are protected. 
 
 If you copy, fork, or host this website, you must:
 1. Change the name of the website to a completely different title.
-2. Remove all official logos, branding assets, and distinct styling associated with the original brand.
-3. Not claim any official affiliation with the original project.
+2. Remove all official logos and distinct branding assets associated with OpenGame.
+3. Not claim any official affiliation with, or endorsement from, the original OpenGame project.
+4. Retain visible attribution to the original author (e.g., "Powered by OpenGame") in the website footer of any direct or minor modifications.
 
+
+---
 
 ## ⭐ Support
 
