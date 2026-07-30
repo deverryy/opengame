@@ -19,17 +19,19 @@ function isAllowed(origin) {
     return ALLOWED_ORIGINS.some(o => origin && origin.startsWith(o));
 }
 
-/* ── Persistent click data ── */
+/* ── Persistent data (clicks + blocked sessions) ── */
 function loadData() {
     try { if (fs.existsSync(DATA_FILE)) return JSON.parse(fs.readFileSync(DATA_FILE, 'utf8')); }
     catch (_) {}
-    return { clicks: {} };
+    return { clicks: {}, blocked: [] };
 }
 function saveData() {
     try { fs.writeFileSync(DATA_FILE, JSON.stringify(siteData, null, 2)); } catch (_) {}
 }
 
-let siteData  = loadData();
+let siteData = loadData();
+if (!Array.isArray(siteData.blocked)) siteData.blocked = []; // migrate older data.json files
+
 let saveTimer = null;
 function scheduleSave() {
     clearTimeout(saveTimer);
@@ -55,6 +57,17 @@ function broadcastStats() {
     clients.forEach(ws => { if (ws.readyState === ws.OPEN) ws.send(payload); });
 }
 
+function isBlocked(id) {
+    return siteData.blocked.some(s => s.id === id);
+}
+
+function broadcastBlockedList() {
+    // let every connected client know the block list changed, so a user who
+    // gets blocked mid-session is kicked out immediately, not just on refresh
+    const payload = JSON.stringify({ type: 'blocklist', blocked: siteData.blocked.map(s => s.id) });
+    clients.forEach(ws => { if (ws.readyState === ws.OPEN) ws.send(payload); });
+}
+
 /* ── WebSocket ── */
 wss.on('connection', (ws, req) => {
     const origin = req.headers.origin || '';
@@ -66,11 +79,16 @@ wss.on('connection', (ws, req) => {
     ws.on('message', raw => {
         let msg;
         try { msg = JSON.parse(raw); } catch (_) { return; }
+
         if (msg.type === 'click' && typeof msg.name === 'string') {
             const name = msg.name.slice(0, 120).replace(/[^\w\s'\-.,!()]/g, '');
             siteData.clicks[name] = (siteData.clicks[name] || 0) + 1;
             scheduleSave();
             broadcastStats();
+        }
+
+        if (msg.type === 'check-session' && typeof msg.id === 'string') {
+            ws.send(JSON.stringify({ type: 'session-status', id: msg.id, blocked: isBlocked(msg.id) }));
         }
     });
 
@@ -84,14 +102,13 @@ app.use((req, res, next) => {
     const origin = req.headers.origin || '';
     if (isAllowed(origin)) {
         res.setHeader('Access-Control-Allow-Origin', origin || '*');
-        res.setHeader('Access-Control-Allow-Methods', 'GET,POST,OPTIONS');
+        res.setHeader('Access-Control-Allow-Methods', 'GET,POST,DELETE,OPTIONS');
         res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
     }
     if (req.method === 'OPTIONS') return res.sendStatus(204);
     next();
 });
 
-/* ── API ── */
 app.get('/api/stats', (req, res) => {
     res.json({ online: clients.size, popular: getTopGames(15) });
 });
@@ -110,10 +127,40 @@ app.get('/api/popular', (req, res) => {
     res.json(getTopGames(Math.min(parseInt(req.query.n) || 15, 50)));
 });
 
+/* ── Session block API (used by admin.html and script.js) ──
+   NOTE: there's no login/password check here — anyone who finds the
+   /api/blocked-sessions POST/DELETE routes could block or unblock people. */
+app.get('/api/blocked-sessions', (req, res) => {
+    res.json({ blocked: siteData.blocked });
+});
+
+app.post('/api/blocked-sessions', (req, res) => {
+    const { id } = req.body;
+    if (!id || !/^\d{5}$/.test(id)) return res.status(400).json({ error: 'id must be a 5-digit string' });
+    if (isBlocked(id)) return res.status(409).json({ error: 'already blocked' });
+
+    siteData.blocked.push({ id, blockedAt: new Date().toISOString() });
+    scheduleSave();
+    broadcastBlockedList();
+    res.json({ ok: true, blocked: siteData.blocked });
+});
+
+app.delete('/api/blocked-sessions/:id', (req, res) => {
+    const { id } = req.params;
+    const before = siteData.blocked.length;
+    siteData.blocked = siteData.blocked.filter(s => s.id !== id);
+
+    if (siteData.blocked.length === before) return res.status(404).json({ error: 'not found' });
+
+    scheduleSave();
+    broadcastBlockedList();
+    res.json({ ok: true, blocked: siteData.blocked });
+});
+
 app.get('/health', (req, res) => res.json({ ok: true, online: clients.size }));
 
 /* ── Start ── */
 server.listen(PORT, () => {
-    console.log(`🌴 Library backend running on port ${PORT}`);
+    console.log(`Library backend running on port ${PORT}`);
     console.log(`   Allowed origins: ${ALLOWED_ORIGINS.join(', ')}`);
 });

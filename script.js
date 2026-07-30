@@ -12,12 +12,67 @@ let popularNames = [];   // server-ranked, updated live
 let ws           = null;
 let wsReady      = false;
 
+/* ─────────────────────────────────────────────────────────────
+   SESSION ID
+   Every visitor gets ONE 5-digit code the first time they load
+   the site. It's saved in localStorage so it stays the same on
+   every visit from that browser. The backend is the only source
+   of truth for whether a code is blocked — we ask it, we don't
+   decide locally. That's what makes blocking actually work: the
+   admin blocks a code on the server, and every page (this one and
+   any open game windows) that checks in gets told "blocked" and
+   locks itself, no matter what's in the visitor's own localStorage.
+   ───────────────────────────────────────────────────────────── */
+function getSessionId() {
+    let id = localStorage.getItem('siteSessionId');
+    if (!id || !/^\d{5}$/.test(id)) {
+        id = String(Math.floor(10000 + Math.random() * 90000));
+        localStorage.setItem('siteSessionId', id);
+    }
+    return id;
+}
+
+const SESSION_ID = getSessionId();
+
+// ask the backend "is my session id blocked?"
+async function checkSessionBlocked() {
+    if (!BACKEND_URL) return false;
+    try {
+        const res  = await fetch(`${BACKEND_URL}/api/blocked-sessions`);
+        const data = await res.json();
+        const list = Array.isArray(data.blocked) ? data.blocked : [];
+        return list.some(s => s.id === SESSION_ID);
+    } catch (_) {
+        return false; // backend unreachable — fail open rather than locking everyone out
+    }
+}
+
+// lock the whole page if this session is blocked
+function lockPage() {
+    document.body.innerHTML = `
+        <div style="display:flex;align-items:center;justify-content:center;height:100vh;background:#000;font-family:sans-serif;text-align:center">
+            <div style="background:rgba(255,255,255,.05);backdrop-filter:blur(20px);border:1.5px solid rgba(255,255,255,.10);border-radius:24px;padding:56px 48px;max-width:420px">
+                <h1 style="color:#aaa;font-size:1.9em;margin-bottom:14px">Access Denied</h1>
+                <p style="color:#eee;opacity:.72">This session has been blocked by an administrator.</p>
+            </div>
+        </div>`;
+}
+
 // boot
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
+    if (await checkSessionBlocked()) { lockPage(); return; }
+
     loadGames();
     if (BACKEND_URL) initWebSocket();
     else             showOfflinePill();
     initProtection();
+
+    // keep checking in the background — if an admin blocks this session
+    // mid-visit, the page locks itself within ~15 seconds instead of
+    // waiting for the next reload
+    setInterval(async () => {
+        if (await checkSessionBlocked()) lockPage();
+    }, 15000);
 });
 
 // websocket connection for live stats
@@ -32,16 +87,21 @@ function initWebSocket() {
         ws.onmessage = evt => {
             let msg;
             try { msg = JSON.parse(evt.data); } catch { return; }
-            if (msg.type !== 'stats') return;
 
-            setOnlineCount(msg.online);
-
-            if (Array.isArray(msg.popular) && msg.popular.length) {
-                popularNames = msg.popular.map(g => g.name);
-                if (allGames.length) {
-                    renderFeatured();
-                    renderAllGames();
+            if (msg.type === 'stats') {
+                setOnlineCount(msg.online);
+                if (Array.isArray(msg.popular) && msg.popular.length) {
+                    popularNames = msg.popular.map(g => g.name);
+                    if (allGames.length) {
+                        renderFeatured();
+                        renderAllGames();
+                    }
                 }
+            }
+
+            // server pushed a fresh block list — lock instantly if we're on it
+            if (msg.type === 'blocklist' && Array.isArray(msg.blocked)) {
+                if (msg.blocked.includes(SESSION_ID)) lockPage();
             }
         };
 
@@ -255,22 +315,18 @@ function filterGames() {
 // open a game in a new tab
 // the loading overlay sits on top (z-index 100) while the iframe (z-index 1)
 // loads underneath, then the overlay fades out — avoids a flash of blank page
-function openGame(gameName, displayName) {
+async function openGame(gameName, displayName) {
+    // re-check with the backend right before opening — catches the case
+    // where an admin blocked this session since page load
+    if (await checkSessionBlocked()) { lockPage(); return; }
+
     recordClick(gameName);
 
-    const gameUrl   = `games/${encodeURIComponent(gameName)}.html`;
-    const sessionId = Math.floor(10000 + Math.random() * 90000);
-    const blocked   = JSON.parse(localStorage.getItem('blockedSessions') || '[]');
-
-    if (blocked.find(s => s.id === sessionId.toString())) {
-        const win = window.open('', '_blank');
-        if (win) { win.document.write(blockedPage(sessionId)); win.document.close(); }
-        return;
-    }
+    const gameUrl = `games/${encodeURIComponent(gameName)}.html`;
 
     const win = window.open('', '_blank');
     if (!win) return;
-    win.document.write(gamePage(gameName, displayName || gameName, gameUrl, sessionId));
+    win.document.write(gamePage(gameName, displayName || gameName, gameUrl, SESSION_ID));
     win.document.close();
 }
 
@@ -281,6 +337,7 @@ function blockedPage(sid) {
 function gamePage(name, displayName, url, sid) {
     const safe = displayName.replace(/</g,'&lt;').replace(/>/g,'&gt;');
     const safeUrl = url.replace(/"/g,'%22');
+    const backend = BACKEND_URL.replace(/"/g, '');
 
     return `<!DOCTYPE html>
 <html><head><title>${safe}</title><meta charset="UTF-8">
@@ -289,10 +346,10 @@ function gamePage(name, displayName, url, sid) {
 *{margin:0;padding:0;box-sizing:border-box;}
 html,body{width:100%;height:100%;overflow:hidden;background:#000;}
 
-// keep the iframe in the DOM the whole time, no flash when the overlay fades
+/* keep the iframe in the DOM the whole time, no flash when the overlay fades */
 #gameFrame{position:fixed;inset:0;width:100%;height:100%;border:none;z-index:1;display:block;}
 
-// fade the overlay out, then pull it from layout
+/* fade the overlay out, then pull it from layout */
 #overlay{
     position:fixed;inset:0;z-index:100;
     background:linear-gradient(168deg,#2b2b2e 0%,#222224 20%,#19191b 40%,#121213 62%,#0a0a0b 82%,#000000 100%);
@@ -302,7 +359,6 @@ html,body{width:100%;height:100%;overflow:hidden;background:#000;}
 }
 #overlay.fading{opacity:0;pointer-events:none;}
 
-/* decorative background bits */
 .ov-cloud{position:absolute;background:rgba(60,60,64,.55);border-radius:50px;filter:blur(1.5px);pointer-events:none;}
 .ov-cloud::before,.ov-cloud::after{content:'';position:absolute;background:rgba(60,60,64,.55);border-radius:50%;}
 .cc1{width:130px;height:40px;top:52px;left:-150px;animation:drift 30s linear infinite;}
@@ -409,25 +465,36 @@ html,body{width:100%;height:100%;overflow:hidden;background:#000;}
         if (prog >= 100){
             clearInterval(iv);
             pt.textContent = 'Ready!';
-            // Step 1: start fade (iframe is already rendering behind)
             setTimeout(function(){
                 ov.classList.add('fading');
-                // Step 2: fully remove after transition completes
                 setTimeout(function(){ ov.style.display = 'none'; }, 550);
             }, 350);
         }
     }, 110);
 
-    // Session block check
-    setInterval(function(){
-        var b = localStorage.getItem('blockedSessions');
-        if (!b) return;
-        try {
-            if (JSON.parse(b).find(function(s){ return s.id === '${sid}'; })){
-                document.body.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100vh;background:linear-gradient(168deg,#1a1a1a,#000);font-family:sans-serif;text-align:center"><div style="background:rgba(255,255,255,.05);backdrop-filter:blur(20px);border-radius:24px;padding:56px 48px;"><h1 style="color:#aaa;margin-bottom:12px;">Session Terminated</h1><p style="color:#eee;opacity:.7;">Blocked by administrator.</p></div></div>';
-            }
-        } catch(e){}
-    }, 2000);
+    // Ask the backend directly whether this session id is blocked.
+    // This is the real check — it can't be spoofed from inside this
+    // window because the answer comes from the server, not localStorage.
+    function lock(){
+        document.body.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100vh;background:linear-gradient(168deg,#1a1a1a,#000);font-family:sans-serif;text-align:center"><div style="background:rgba(255,255,255,.05);backdrop-filter:blur(20px);border-radius:24px;padding:56px 48px;"><h1 style="color:#aaa;margin-bottom:12px;">Session Terminated</h1><p style="color:#eee;opacity:.7;">Blocked by administrator.</p></div></div>';
+    }
+
+    var BACKEND = ${JSON.stringify(backend)};
+    var SID = ${JSON.stringify(sid)};
+
+    function checkBlocked(){
+        if (!BACKEND) return;
+        fetch(BACKEND + '/api/blocked-sessions')
+            .then(function(r){ return r.json(); })
+            .then(function(d){
+                var list = Array.isArray(d.blocked) ? d.blocked : [];
+                if (list.some(function(s){ return s.id === SID; })) lock();
+            })
+            .catch(function(){});
+    }
+
+    checkBlocked();
+    setInterval(checkBlocked, 15000);
 })();
 <\/script>
 </body></html>`;

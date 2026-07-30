@@ -102,6 +102,12 @@
             transform: translateY(-1px);
         }
 
+        .btn:disabled {
+            opacity: .5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
         .btn-danger {
             background: #d70000;
             color: #fff;
@@ -208,6 +214,17 @@
             padding: 40px;
             font-size: 0.95em;
         }
+
+        .conn-pill {
+            margin-left: auto;
+            font-size: .8em;
+            padding: 6px 14px;
+            border-radius: 999px;
+            border: 1px solid #333;
+            color: #888;
+        }
+        .conn-pill.ok   { color: #8bff8b; border-color: #1b7d1b; }
+        .conn-pill.bad  { color: #ff8b8b; border-color: #7d1b1b; }
     </style>
 </head>
 <body>
@@ -217,6 +234,7 @@
                 <img src="https://static.vecteezy.com/system/resources/previews/036/475/917/non_2x/agent-or-spy-icon-incognito-logo-vector.jpg" alt="Incognito">
             </div>
             <h1>Admin Panel</h1>
+            <div class="conn-pill" id="connPill">connecting…</div>
         </div>
 
         <div class="stats">
@@ -226,7 +244,7 @@
             </div>
             <div class="stat-card">
                 <div class="stat-number" id="totalActive">0</div>
-                <div class="stat-label">Active Sessions</div>
+                <div class="stat-label">Online Now</div>
             </div>
         </div>
 
@@ -234,7 +252,7 @@
             <h2>Block Session</h2>
             <div class="input-group">
                 <label for="sessionId">Session ID</label>
-                <input type="text" id="sessionId" placeholder="Enter 5-digit session ID">
+                <input type="text" id="sessionId" maxlength="5" placeholder="Enter 5-digit session ID">
             </div>
             <button class="btn btn-danger" onclick="blockSession()">Block Session</button>
             <div class="status-msg" id="blockStatus"></div>
@@ -244,7 +262,7 @@
             <h2>Unblock Session</h2>
             <div class="input-group">
                 <label for="unblockId">Session ID</label>
-                <input type="text" id="unblockId" placeholder="Enter session ID to unblock">
+                <input type="text" id="unblockId" maxlength="5" placeholder="Enter session ID to unblock">
             </div>
             <button class="btn btn-success" onclick="unblockSession()">Unblock Session</button>
             <div class="status-msg" id="unblockStatus"></div>
@@ -253,136 +271,136 @@
         <div class="panel">
             <h2>Blocked Sessions</h2>
             <div id="blockedList" class="blocked-list">
-                <div class="empty-state">No blocked sessions</div>
+                <div class="empty-state">Loading…</div>
             </div>
         </div>
     </div>
 
     <script>
-        // Get blocked sessions from localStorage
-        function getBlockedSessions() {
-            const blocked = localStorage.getItem('blockedSessions');
-            return blocked ? JSON.parse(blocked) : [];
-        }
+        // ── paste your backend URL here (same one used in script.js) ──
+        const BACKEND_URL = 'http://localhost:3000';   // ← PASTE YOUR URL HERE
 
-        // Save blocked sessions to localStorage
-        function saveBlockedSessions(sessions) {
-            localStorage.setItem('blockedSessions', JSON.stringify(sessions));
-            updateUI();
+        async function api(path, opts) {
+            const res = await fetch(`${BACKEND_URL}${path}`, {
+                headers: { 'Content-Type': 'application/json' },
+                ...opts
+            });
+            const data = await res.json().catch(() => ({}));
+            if (!res.ok) throw new Error(data.error || `HTTP ${res.status}`);
+            return data;
         }
 
         // Block a session
-        function blockSession() {
-            const input = document.getElementById('sessionId');
+        async function blockSession() {
+            const input   = document.getElementById('sessionId');
             const sessionId = input.value.trim();
-            const status = document.getElementById('blockStatus');
-
-            if (!sessionId) {
-                showStatus(status, 'Please enter a session ID', 'error');
-                return;
-            }
+            const status  = document.getElementById('blockStatus');
 
             if (!/^\d{5}$/.test(sessionId)) {
                 showStatus(status, 'Session ID must be 5 digits', 'error');
                 return;
             }
 
-            const blocked = getBlockedSessions();
-            
-            if (blocked.find(s => s.id === sessionId)) {
-                showStatus(status, 'Session is already blocked', 'error');
-                return;
+            try {
+                await api('/api/blocked-sessions', { method: 'POST', body: JSON.stringify({ id: sessionId }) });
+                input.value = '';
+                showStatus(status, `Session ${sessionId} has been blocked`, 'success');
+                loadBlocked();
+            } catch (e) {
+                showStatus(status, e.message, 'error');
             }
-
-            blocked.push({
-                id: sessionId,
-                blockedAt: new Date().toISOString()
-            });
-
-            saveBlockedSessions(blocked);
-            input.value = '';
-            showStatus(status, `Session ${sessionId} has been blocked`, 'success');
         }
 
         // Unblock a session
-        function unblockSession() {
-            const input = document.getElementById('unblockId');
+        async function unblockSession() {
+            const input   = document.getElementById('unblockId');
             const sessionId = input.value.trim();
-            const status = document.getElementById('unblockStatus');
+            const status  = document.getElementById('unblockStatus');
 
             if (!sessionId) {
                 showStatus(status, 'Please enter a session ID', 'error');
                 return;
             }
 
-            const blocked = getBlockedSessions();
-            const filtered = blocked.filter(s => s.id !== sessionId);
-
-            if (blocked.length === filtered.length) {
-                showStatus(status, 'Session not found in blocked list', 'error');
-                return;
+            try {
+                await api(`/api/blocked-sessions/${encodeURIComponent(sessionId)}`, { method: 'DELETE' });
+                input.value = '';
+                showStatus(status, `Session ${sessionId} has been unblocked`, 'success');
+                loadBlocked();
+            } catch (e) {
+                showStatus(status, e.message, 'error');
             }
-
-            saveBlockedSessions(filtered);
-            input.value = '';
-            showStatus(status, `Session ${sessionId} has been unblocked`, 'success');
         }
 
-        // Remove a blocked session
-        function removeBlocked(sessionId) {
-            const blocked = getBlockedSessions();
-            const filtered = blocked.filter(s => s.id !== sessionId);
-            saveBlockedSessions(filtered);
+        async function removeBlocked(sessionId) {
+            try {
+                await api(`/api/blocked-sessions/${encodeURIComponent(sessionId)}`, { method: 'DELETE' });
+                loadBlocked();
+            } catch (_) {}
         }
 
-        // Show status message
         function showStatus(element, message, type) {
             element.textContent = message;
             element.className = `status-msg ${type}`;
             element.style.display = 'block';
-
-            setTimeout(() => {
-                element.style.display = 'none';
-            }, 3000);
+            setTimeout(() => { element.style.display = 'none'; }, 3000);
         }
 
-        // Update UI
-        function updateUI() {
-            const blocked = getBlockedSessions();
+        function renderBlocked(blocked) {
             const listContainer = document.getElementById('blockedList');
-            
-            // Update stats
             document.getElementById('totalBlocked').textContent = blocked.length;
-            
-            // Update blocked list
+
             if (blocked.length === 0) {
                 listContainer.innerHTML = '<div class="empty-state">No blocked sessions</div>';
-            } else {
-                listContainer.innerHTML = blocked
-                    .sort((a, b) => new Date(b.blockedAt) - new Date(a.blockedAt))
-                    .map(session => `
-                        <div class="blocked-item">
-                            <div class="blocked-item-info">
-                                <div class="blocked-item-id">Session: ${session.id}</div>
-                                <div class="blocked-item-time">Blocked: ${new Date(session.blockedAt).toLocaleString()}</div>
-                            </div>
-                            <button class="btn btn-success btn-small" onclick="removeBlocked('${session.id}')">Unblock</button>
+                return;
+            }
+
+            listContainer.innerHTML = blocked
+                .slice()
+                .sort((a, b) => new Date(b.blockedAt) - new Date(a.blockedAt))
+                .map(session => `
+                    <div class="blocked-item">
+                        <div class="blocked-item-info">
+                            <div class="blocked-item-id">Session: ${session.id}</div>
+                            <div class="blocked-item-time">Blocked: ${new Date(session.blockedAt).toLocaleString()}</div>
                         </div>
-                    `).join('');
+                        <button class="btn btn-success btn-small" onclick="removeBlocked('${session.id}')">Unblock</button>
+                    </div>
+                `).join('');
+        }
+
+        async function loadBlocked() {
+            try {
+                const data = await api('/api/blocked-sessions');
+                renderBlocked(data.blocked || []);
+                setConn(true);
+            } catch (e) {
+                setConn(false);
             }
         }
 
-        // Allow Enter key to submit
-        document.getElementById('sessionId').addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') blockSession();
-        });
+        async function loadStats() {
+            try {
+                const data = await api('/api/stats');
+                document.getElementById('totalActive').textContent = data.online;
+                setConn(true);
+            } catch (e) {
+                setConn(false);
+            }
+        }
 
-        document.getElementById('unblockId').addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') unblockSession();
-        });
+        function setConn(ok) {
+            const pill = document.getElementById('connPill');
+            pill.textContent = ok ? 'connected' : 'backend unreachable';
+            pill.className = 'conn-pill ' + (ok ? 'ok' : 'bad');
+        }
 
-        // Initialize UI
-        updateUI();
+        document.getElementById('sessionId').addEventListener('keypress', e => { if (e.key === 'Enter') blockSession(); });
+        document.getElementById('unblockId').addEventListener('keypress', e => { if (e.key === 'Enter') unblockSession(); });
+
+        loadBlocked();
+        loadStats();
+        setInterval(loadStats, 8000);
     </script>
 </body>
 </html>
