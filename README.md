@@ -32,17 +32,17 @@
 
 ```text
 opengame/
-├── backend/            # Backend files
+├── backend/            # Backend files (including server setup)
 ├── games/              # Your browser games
-├── server.js           # Optional Node.js server
-├── manage-games.js     # Game management
-├── script.js           # Frontend JavaScript
-├── index.html          # Homepage
-├── admin.html          # Admin panel
-├── dev.html            # Developer page
+├── .gitignore
 ├── 404.html            # Custom 404 page
+├── LICENSE
 ├── README.md
-└── .gitignore
+├── admin.html          # Admin panel
+├── index.html          # Homepage
+├── manage-games.js     # Game management
+└── script.js           # Frontend JavaScript
+
 ```
 
 ---
