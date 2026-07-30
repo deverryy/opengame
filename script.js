@@ -100,7 +100,7 @@ function recordClick(name) {
     }
 }
 
-// load games from list.json (Vercel serves this file statically)
+// load games from list.json
 async function loadGames() {
     function setDetail(msg) {
         const el = document.getElementById('loadDetail');
@@ -140,7 +140,7 @@ async function loadGames() {
                 <div style="color:var(--rust);opacity:.8;margin-top:6px;font-size:.88em">${err.message}</div>
                 <div style="margin-top:12px;color:var(--ink-soft);font-size:.8em;line-height:1.6">
                     Make sure <code style="background:rgba(255,255,255,.08);padding:1px 6px;border-radius:4px">list.json</code>
-                    is in the root of your Vercel project.
+                    is in the root of your project.
                 </div>
                 <button onclick="loadGames()" style="margin-top:16px;padding:9px 24px;background:var(--amber-deep);color:#fff;border:none;border-radius:999px;cursor:pointer;font-family:inherit;font-weight:600;font-size:.88em;box-shadow:0 4px 14px rgba(0,0,0,.4);transition:transform .3s cubic-bezier(.34,1.56,.64,1);">
                     Retry
