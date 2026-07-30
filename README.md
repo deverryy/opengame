@@ -6,7 +6,6 @@
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/github/license/deverryy/opengame?style=for-the-badge" alt="License">
   <img src="https://img.shields.io/github/stars/deverryy/opengame?style=for-the-badge" alt="Stars">
   <img src="https://img.shields.io/github/issues/deverryy/opengame?style=for-the-badge" alt="Issues">
 </p>
