@@ -1,29 +1,18 @@
-/* ══════════════════════════════════════════════════════
-   CONFIG — paste your backend URL here
-══════════════════════════════════════════════════════ */
+// paste your backend URL here
 const BACKEND_URL = 'http://localhost:3000';   // ← PASTE YOUR URL HERE
 
-/* ══════════════════════════════════════════════════════
-   SEED — shown in featured section until real click
-   data arrives from the backend
-══════════════════════════════════════════════════════ */
+// shown in the featured section until real click data comes in from the backend put your own favorites here if you want
 const SEED_POPULAR = [
-    'Minecraft', 'slope', '1v1.lol', 'Among Us', 'Retro Bowl',
-    'Brawl Stars', 'Bloons TD6', 'run3', 'BitLife', 'Basketball Stars',
-    'Cuphead', 'Terraria', 'DOOM', 'Hollow Knight', 'geodash'
+    'REPLACE', 'THIS', 'WITH', 'YOUR', 'FAVORITE', 'GAMES'
 ];
 
-/* ══════════════════════════════════════════════════════
-   STATE
-══════════════════════════════════════════════════════ */
+// state
 let allGames     = [];
 let popularNames = [];   // server-ranked, updated live
 let ws           = null;
 let wsReady      = false;
 
-/* ══════════════════════════════════════════════════════
-   BOOT
-══════════════════════════════════════════════════════ */
+// boot
 document.addEventListener('DOMContentLoaded', () => {
     loadGames();
     if (BACKEND_URL) initWebSocket();
@@ -31,9 +20,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initProtection();
 });
 
-/* ══════════════════════════════════════════════════════
-   WEBSOCKET
-══════════════════════════════════════════════════════ */
+// websocket connection for live stats
 function initWebSocket() {
     const wsUrl = BACKEND_URL.replace(/^http/, 'ws');
 
@@ -99,9 +86,7 @@ function showOfflinePill() {
     count.textContent = '–';
 }
 
-/* ══════════════════════════════════════════════════════
-   RECORD CLICK
-══════════════════════════════════════════════════════ */
+// tell the backend a game got clicked
 function recordClick(name) {
     if (!BACKEND_URL) return;
     if (wsReady && ws && ws.readyState === WebSocket.OPEN) {
@@ -115,9 +100,7 @@ function recordClick(name) {
     }
 }
 
-/* ══════════════════════════════════════════════════════
-   LOAD GAMES FROM list.json (Vercel serves this)
-══════════════════════════════════════════════════════ */
+// load games from list.json (Vercel serves this file statically)
 async function loadGames() {
     function setDetail(msg) {
         const el = document.getElementById('loadDetail');
@@ -156,19 +139,17 @@ async function loadGames() {
                 <strong style="color:var(--rust)">Failed to load games</strong>
                 <div style="color:var(--rust);opacity:.8;margin-top:6px;font-size:.88em">${err.message}</div>
                 <div style="margin-top:12px;color:var(--ink-soft);font-size:.8em;line-height:1.6">
-                    Make sure <code style="background:rgba(0,0,0,.06);padding:1px 6px;border-radius:4px">list.json</code>
+                    Make sure <code style="background:rgba(255,255,255,.08);padding:1px 6px;border-radius:4px">list.json</code>
                     is in the root of your Vercel project.
                 </div>
-                <button onclick="loadGames()" style="margin-top:16px;padding:9px 24px;background:var(--amber-deep);color:#fff;border:none;border-radius:999px;cursor:pointer;font-family:inherit;font-weight:600;font-size:.88em;box-shadow:0 4px 14px rgba(181,101,29,.35);transition:transform .3s cubic-bezier(.34,1.56,.64,1);">
+                <button onclick="loadGames()" style="margin-top:16px;padding:9px 24px;background:var(--amber-deep);color:#fff;border:none;border-radius:999px;cursor:pointer;font-family:inherit;font-weight:600;font-size:.88em;box-shadow:0 4px 14px rgba(0,0,0,.4);transition:transform .3s cubic-bezier(.34,1.56,.64,1);">
                     Retry
                 </button>
             </div>`;
     }
 }
 
-/* ══════════════════════════════════════════════════════
-   RENDER FEATURED — ranked by real clicks, seeded initially
-══════════════════════════════════════════════════════ */
+// render the featured row, ranked by real clicks once we have them
 function renderFeatured() {
     const list  = document.getElementById('featuredList');
     const label = document.getElementById('featuredLabel');
@@ -205,9 +186,7 @@ function renderFeatured() {
     featured.forEach((game, i) => list.appendChild(makeCard(game, i, true)));
 }
 
-/* ══════════════════════════════════════════════════════
-   RENDER ALL GAMES — alphabetical, excludes featured
-══════════════════════════════════════════════════════ */
+// render the rest of the games, alphabetically
 function renderAllGames() {
     const list    = document.getElementById('gamesList');
     const noGames = document.getElementById('noGames');
@@ -230,7 +209,7 @@ function renderAllGames() {
     rest.forEach((game, i) => list.appendChild(makeCard(game, i, false)));
 }
 
-/* ── Make a card DOM node ── */
+// build one game card
 function makeCard(game, index, isFeatured) {
     const card = document.createElement('div');
     card.className = 'tile' + (isFeatured ? ' tile-featured' : '');
@@ -245,9 +224,7 @@ function makeCard(game, index, isFeatured) {
     return card;
 }
 
-/* ══════════════════════════════════════════════════════
-   SEARCH
-══════════════════════════════════════════════════════ */
+// search
 function filterGames() {
     const q             = document.getElementById('searchInput').value.trim().toLowerCase();
     const featuredPanel = document.getElementById('featured');
@@ -275,12 +252,9 @@ function filterGames() {
     results.forEach((game, i) => list.appendChild(makeCard(game, i, false)));
 }
 
-/* ══════════════════════════════════════════════════════
-   OPEN GAME
-   iframe fix: overlay is position:fixed on top (z-index 100),
-   iframe is always in the DOM at z-index 1.
-   Overlay fades out via CSS transition — no display:none flash.
-══════════════════════════════════════════════════════ */
+// open a game in a new tab
+// the loading overlay sits on top (z-index 100) while the iframe (z-index 1)
+// loads underneath, then the overlay fades out — avoids a flash of blank page
 function openGame(gameName, displayName) {
     recordClick(gameName);
 
@@ -301,7 +275,7 @@ function openGame(gameName, displayName) {
 }
 
 function blockedPage(sid) {
-    return `<!DOCTYPE html><html><head><title>Access Denied</title><style>body{margin:0;background:linear-gradient(168deg,#F6DE9C,#EDA85C,#C96A38);font-family:sans-serif;display:flex;align-items:center;justify-content:center;height:100vh;text-align:center;}.box{background:rgba(255,250,240,.32);backdrop-filter:blur(20px);border:1.5px solid rgba(255,235,205,.60);border-radius:24px;padding:56px 48px;max-width:460px;}h1{color:#C1432A;font-size:1.9em;margin-bottom:14px;}p{color:#3A2A1D;opacity:.72;}</style></head><body><div class="box"><h1>Access Denied</h1><p>This session has been blocked.</p></div></body></html>`;
+    return `<!DOCTYPE html><html><head><title>Access Denied</title><style>body{margin:0;background:linear-gradient(168deg,#1a1a1a,#0a0a0a,#000);font-family:sans-serif;display:flex;align-items:center;justify-content:center;height:100vh;text-align:center;}.box{background:rgba(255,255,255,.05);backdrop-filter:blur(20px);border:1.5px solid rgba(255,255,255,.10);border-radius:24px;padding:56px 48px;max-width:460px;}h1{color:#aaa;font-size:1.9em;margin-bottom:14px;}p{color:#eee;opacity:.72;}</style></head><body><div class="box"><h1>Access Denied</h1><p>This session has been blocked.</p></div></body></html>`;
 }
 
 function gamePage(name, displayName, url, sid) {
@@ -315,80 +289,80 @@ function gamePage(name, displayName, url, sid) {
 *{margin:0;padding:0;box-sizing:border-box;}
 html,body{width:100%;height:100%;overflow:hidden;background:#000;}
 
-/* iframe always in DOM behind overlay — no flash when overlay fades */
+// keep the iframe in the DOM the whole time, no flash when the overlay fades
 #gameFrame{position:fixed;inset:0;width:100%;height:100%;border:none;z-index:1;display:block;}
 
-/* Overlay fades out via opacity transition, then removed from layout */
+// fade the overlay out, then pull it from layout
 #overlay{
     position:fixed;inset:0;z-index:100;
-    background:linear-gradient(168deg,#F6DE9C 0%,#F3C578 20%,#EDA85C 40%,#E28849 62%,#C96A38 82%,#8A4225 100%);
+    background:linear-gradient(168deg,#2b2b2e 0%,#222224 20%,#19191b 40%,#121213 62%,#0a0a0b 82%,#000000 100%);
     display:flex;flex-direction:column;align-items:center;justify-content:center;
     opacity:1;pointer-events:auto;
     transition:opacity .5s ease;
 }
 #overlay.fading{opacity:0;pointer-events:none;}
 
-/* sky dressing */
-.ov-cloud{position:absolute;background:rgba(255,248,235,.82);border-radius:50px;filter:blur(1.5px);pointer-events:none;}
-.ov-cloud::before,.ov-cloud::after{content:'';position:absolute;background:rgba(255,248,235,.82);border-radius:50%;}
+/* decorative background bits */
+.ov-cloud{position:absolute;background:rgba(60,60,64,.55);border-radius:50px;filter:blur(1.5px);pointer-events:none;}
+.ov-cloud::before,.ov-cloud::after{content:'';position:absolute;background:rgba(60,60,64,.55);border-radius:50%;}
 .cc1{width:130px;height:40px;top:52px;left:-150px;animation:drift 30s linear infinite;}
 .cc1::before{width:72px;height:56px;top:-30px;left:20px;}.cc1::after{width:52px;height:44px;top:-22px;left:60px;}
 .cc2{width:85px;height:26px;top:120px;left:-100px;animation:drift 42s linear infinite 7s;opacity:.7;}
 .cc2::before{width:50px;height:38px;top:-20px;left:13px;}.cc2::after{width:36px;height:30px;top:-15px;left:38px;}
 @keyframes drift{from{left:-200px;}to{left:110vw;}}
 .ov-sun{position:absolute;top:32px;right:12%;width:80px;height:80px;
-    background:radial-gradient(circle,#FFF3C4 20%,#F5C860 50%,#E8A23D 75%,transparent 100%);
-    border-radius:50%;box-shadow:0 0 50px 16px rgba(232,162,61,.32);
-    animation:sp 7s ease-in-out infinite;pointer-events:none;}
+    background:radial-gradient(circle,#e8e8e8 15%,#9a9a9a 45%,#4a4a4a 75%,transparent 100%);
+    border-radius:50%;box-shadow:0 0 50px 16px rgba(255,255,255,.10);
+    animation:sp 7s ease-in-out infinite;pointer-events:none;opacity:.8;}
 @keyframes sp{0%,100%{transform:scale(1);}50%{transform:scale(1.04);}}
 .ov-waves{position:absolute;bottom:0;left:0;width:100%;height:100px;pointer-events:none;overflow:hidden;}
 .ov-wave{position:absolute;bottom:0;left:-25%;width:150%;height:100%;
-    background:linear-gradient(180deg,rgba(196,116,42,.50) 0%,rgba(112,58,20,.72) 100%);
+    background:linear-gradient(180deg,rgba(30,30,32,.55) 0%,rgba(0,0,0,.80) 100%);
     border-radius:55% 45% 0 0/70px 50px 0 0;}
 .ow1{animation:wv1 8s ease-in-out infinite;}
-.ow2{background:linear-gradient(180deg,rgba(224,158,64,.30) 0%,rgba(150,88,32,.48) 100%);animation:wv2 11s ease-in-out infinite;}
-.ow3{background:rgba(255,244,222,.14);border-radius:42% 58% 0 0/50px 70px 0 0;animation:wv1 15s ease-in-out infinite reverse;}
+.ow2{background:linear-gradient(180deg,rgba(40,40,44,.35) 0%,rgba(10,10,12,.55) 100%);animation:wv2 11s ease-in-out infinite;}
+.ow3{background:rgba(255,255,255,.03);border-radius:42% 58% 0 0/50px 70px 0 0;animation:wv1 15s ease-in-out infinite reverse;}
 @keyframes wv1{0%,100%{transform:translateX(0) scaleY(1);}50%{transform:translateX(-6%) scaleY(1.08);}}
 @keyframes wv2{0%,100%{transform:translateX(-4%) scaleY(1);}50%{transform:translateX(4%) scaleY(.93);}}
 
 .lcard{
-    background:rgba(255,250,240,.32);
-    backdrop-filter:blur(28px) saturate(1.7) brightness(1.05);-webkit-backdrop-filter:blur(28px) saturate(1.7) brightness(1.05);
-    border:1.5px solid rgba(255,235,205,.65);border-radius:30px;
+    background:rgba(20,20,22,.55);
+    backdrop-filter:blur(28px) saturate(1.2) brightness(1.0);-webkit-backdrop-filter:blur(28px) saturate(1.2) brightness(1.0);
+    border:1.5px solid rgba(255,255,255,.12);border-radius:30px;
     padding:40px 46px 36px;text-align:center;
     width:90%;max-width:400px;
-    box-shadow:0 28px 70px -14px rgba(110,55,10,.30),0 1.5px 0 rgba(255,250,240,.60) inset,0 -24px 34px -30px rgba(232,162,61,.38) inset;
+    box-shadow:0 28px 70px -14px rgba(0,0,0,.6),0 1.5px 0 rgba(255,255,255,.10) inset,0 -24px 34px -30px rgba(0,0,0,.5) inset;
     position:relative;z-index:2;overflow:hidden;
     animation:cardPop .5s cubic-bezier(.16,1,.3,1) both;
 }
 @keyframes cardPop{from{opacity:0;transform:scale(.90) translateY(14px);filter:blur(8px);}to{opacity:1;transform:scale(1) translateY(0);filter:blur(0);}}
 .lcard::before{content:'';position:absolute;inset:0;pointer-events:none;
-    background:linear-gradient(128deg, rgba(255,255,255,.55) 0%, rgba(255,255,255,0) 30%, rgba(255,255,255,0) 70%, rgba(255,255,255,.18) 100%);
+    background:linear-gradient(128deg, rgba(255,255,255,.10) 0%, rgba(255,255,255,0) 30%, rgba(255,255,255,0) 70%, rgba(255,255,255,.04) 100%);
     mix-blend-mode:overlay;}
 .ring{
     width:46px;height:46px;margin:0 auto 16px;border-radius:50%;
-    background:conic-gradient(from 0deg,#B5651D,#E8A23D,#C1432A,#B5651D);
+    background:conic-gradient(from 0deg,#5A5A5A,#8A8A8A,#3A3A3A,#5A5A5A);
     -webkit-mask:radial-gradient(farthest-side,transparent calc(100% - 4px),#000 calc(100% - 4px));
             mask:radial-gradient(farthest-side,transparent calc(100% - 4px),#000 calc(100% - 4px));
     animation:spin .85s linear infinite;
-    filter:drop-shadow(0 0 8px rgba(232,162,61,.45));
+    filter:drop-shadow(0 0 8px rgba(255,255,255,.15));
 }
 @keyframes spin{to{transform:rotate(360deg);}}
-.lcard h1{font-family:'Playfair Display',serif;font-size:1.5em;color:#3A2A1D;margin-bottom:6px;position:relative;}
-.lcard .sub{color:#967C64;font-size:.84em;margin-bottom:22px;font-weight:300;position:relative;}
-.pwrap{background:rgba(255,250,240,.44);border:1.5px solid rgba(255,235,205,.70);border-radius:14px;padding:14px 18px;position:relative;}
-.plabel{font-size:10px;text-transform:uppercase;letter-spacing:1.5px;color:#967C64;margin-bottom:7px;text-align:left;font-weight:600;}
-.pbg{width:100%;height:8px;background:rgba(90,45,10,.10);border-radius:4px;overflow:hidden;}
-.pfill{height:100%;background:linear-gradient(90deg,#B5651D,#E8A23D);border-radius:4px;width:0%;
-    transition:width .3s cubic-bezier(.16,1,.3,1);box-shadow:0 0 10px rgba(181,101,29,.40);
+.lcard h1{font-family:'Playfair Display',serif;font-size:1.5em;color:#F0EDE8;margin-bottom:6px;position:relative;}
+.lcard .sub{color:#8E8880;font-size:.84em;margin-bottom:22px;font-weight:300;position:relative;}
+.pwrap{background:rgba(255,255,255,.05);border:1.5px solid rgba(255,255,255,.12);border-radius:14px;padding:14px 18px;position:relative;}
+.plabel{font-size:10px;text-transform:uppercase;letter-spacing:1.5px;color:#8E8880;margin-bottom:7px;text-align:left;font-weight:600;}
+.pbg{width:100%;height:8px;background:rgba(255,255,255,.08);border-radius:4px;overflow:hidden;}
+.pfill{height:100%;background:linear-gradient(90deg,#5A5A5A,#B0B0B0);border-radius:4px;width:0%;
+    transition:width .3s cubic-bezier(.16,1,.3,1);box-shadow:0 0 10px rgba(255,255,255,.20);
     position:relative;overflow:hidden;}
 .pfill::after{content:'';position:absolute;inset:0;
-    background:linear-gradient(90deg,transparent,rgba(255,255,255,.55),transparent);
+    background:linear-gradient(90deg,transparent,rgba(255,255,255,.35),transparent);
     background-size:60px 100%;background-repeat:no-repeat;
     animation:shimmer 1.1s linear infinite;}
 @keyframes shimmer{0%{background-position:-60px 0;}100%{background-position:calc(100% + 60px) 0;}}
-.ptxt{font-family:'Courier New',monospace;font-size:12px;color:#B5651D;margin-top:8px;text-align:left;font-weight:600;}
-.sess{position:fixed;bottom:7px;right:10px;opacity:.12;font-size:10px;z-index:200;color:#333;user-select:none;}
+.ptxt{font-family:'Courier New',monospace;font-size:12px;color:#B0B0B0;margin-top:8px;text-align:left;font-weight:600;}
+.sess{position:fixed;bottom:7px;right:10px;opacity:.12;font-size:10px;z-index:200;color:#ccc;user-select:none;}
 </style></head><body>
 
 <iframe id="gameFrame" src="${safeUrl}" allowfullscreen></iframe>
@@ -450,7 +424,7 @@ html,body{width:100%;height:100%;overflow:hidden;background:#000;}
         if (!b) return;
         try {
             if (JSON.parse(b).find(function(s){ return s.id === '${sid}'; })){
-                document.body.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100vh;background:linear-gradient(168deg,#F6DE9C,#E28849);font-family:sans-serif;text-align:center"><div style="background:rgba(255,250,240,.32);backdrop-filter:blur(20px);border-radius:24px;padding:56px 48px;"><h1 style="color:#C1432A;margin-bottom:12px;">Session Terminated</h1><p style="color:#3A2A1D;opacity:.7;">Blocked by administrator.</p></div></div>';
+                document.body.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100vh;background:linear-gradient(168deg,#1a1a1a,#000);font-family:sans-serif;text-align:center"><div style="background:rgba(255,255,255,.05);backdrop-filter:blur(20px);border-radius:24px;padding:56px 48px;"><h1 style="color:#aaa;margin-bottom:12px;">Session Terminated</h1><p style="color:#eee;opacity:.7;">Blocked by administrator.</p></div></div>';
             }
         } catch(e){}
     }, 2000);
@@ -459,9 +433,7 @@ html,body{width:100%;height:100%;overflow:hidden;background:#000;}
 </body></html>`;
 }
 
-/* ══════════════════════════════════════════════════════
-   PROTECTION
-══════════════════════════════════════════════════════ */
+// a grab-bag of anti-scraping/anti-devtools tricks, nothing fancy
 function initProtection() {
     // 1 — No right-click
     document.addEventListener('contextmenu', e => e.preventDefault());

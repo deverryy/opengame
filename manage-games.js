@@ -20,12 +20,8 @@ const CONFIG_FILE = path.join(SCRIPT_DIR, 'config.json');
 
 const DEFAULT_CONFIG = {
     allowedDomains: [
-        'portal.dever.pro',
-        'www.portal.dever.pro',
-        'localhost',
-        '127.0.0.1',
-        'gam12.netlify.app',
-        'www.gam12.netlify.app'
+        'https://github.com/deverryy/opengame',
+        'github.com/deverryy/opengame',
     ],
     adHostPatterns: [
         'googlesyndication\\.com',
