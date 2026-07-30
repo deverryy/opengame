@@ -1,0 +1,9 @@
+Hi! Its dever telling YOU little programmer that how to add games :D
+
+Step 1 Find the perfect html game you can find!
+
+Step 2 put it in this folder! Now whatever the html file is called is what it'll show up on the website! ex: Portal2.html = Portal2 the only difference is that the site removes the .html from the game card
+
+Step 3 Generate the list.json and piracy protection by opening the terminal in the root then run node manage-games.js to run the auto ad remover and the file protection. The file will auto generate a folder called 'games_backup' which will have all the games pre file protection!
+
+Step 4 enjoy :D
